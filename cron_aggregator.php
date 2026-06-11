@@ -1,44 +1,46 @@
 <?php
 /**
- * Cron Aggregator for DramaBos API
- * PHP 5.6 Compatible - No modern syntax allowed
+ * Cron Aggregator untuk DramaBos API
+ * PHP 5.6 - 8.3 Compatible - Tidak pakai syntax modern (??, fn(), typed properties)
  * 
- * This file should be called via browser or cron job every 6 hours.
- * It fetches data from multiple providers and saves to global_feed.json
+ * Script ini mengambil data trending dari 7 provider terverifikasi dan menyimpan ke global_feed.json
+ * Dipanggil via browser atau cron job setiap 6 jam.
  * 
- * Usage: 
- *   - Browser: https://yourdomain.com/cron_aggregator.php?secret_key=YOUR_SECRET_KEY
- *   - Cron: 0 */6 * * * curl "https://yourdomain.com/cron_aggregator.php?secret_key=YOUR_SECRET_KEY" > /dev/null 2>&1
+ * CARA PAKAI:
+ *   - Browser: https://yourdomain.com/cron_aggregator.php?key=nontonin_rahasia_2026
+ *   - Cron: 0 */6 * * * curl "https://yourdomain.com/cron_aggregator.php?key=nontonin_rahasia_2026" > /dev/null 2>&1
  * 
- * SECURITY: Replace YOUR_SECRET_KEY below with a strong random string!
+ * KEAMANAN: Validasi $_GET['key'] sebelum eksekusi!
+ * 
+ * PENTING: Setiap provider punya endpoint unik berdasarkan dokumentasi resmi DramaBos!
  */
 
-// Define secret key for cron access protection
-define('CRON_SECRET_KEY', 'CHANGE_THIS_TO_A_STRONG_RANDOM_STRING');
+// Define secret key untuk proteksi akses cron
+define('CRON_SECRET_KEY', 'nontonin_rahasia_2026');
 
-// Validate secret key if provided via GET parameter
-if (isset($_GET['secret_key'])) {
-    if ($_GET['secret_key'] !== CRON_SECRET_KEY) {
+// Validasi secret key dari parameter GET
+if (isset($_GET['key'])) {
+    if ($_GET['key'] !== CRON_SECRET_KEY) {
         header('HTTP/1.0 403 Forbidden');
-        die('Access Denied: Invalid secret key');
+        die('❌ Akses Ditolak: Secret key tidak valid!');
     }
 } else {
-    // If no secret key provided, check if running from CLI
+    // Jika tidak ada key, cek apakah dijalankan dari CLI
     if (php_sapi_name() !== 'cli') {
         header('HTTP/1.0 403 Forbidden');
-        die('Access Denied: Secret key required');
+        die('❌ Akses Ditolak: Secret key diperlukan! Buka dengan ?key=nontonin_rahasia_2026');
     }
 }
 
-// Load configuration
+// Load konfigurasi
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/app/core/ApiService.php';
 
-// Set execution time limit (important for aggregation)
-ini_set('max_execution_time', 300); // 5 minutes
+// Set waktu eksekusi maksimal (penting untuk agregasi banyak provider)
+ini_set('max_execution_time', 300); // 5 menit
 set_time_limit(300);
 
-// Path to global feed cache file
+// Path ke file cache global feed
 $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
 
 ?>
@@ -47,74 +49,185 @@ $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Aggregator - Progress</title>
+    <title>Cron Aggregator - Nontonin</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
             padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         .container {
             background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-        h1 { color: #333; }
+        h1 { 
+            color: #333; 
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .progress-container {
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 5px;
+            margin: 25px 0;
+        }
         .progress-bar {
             width: 100%;
-            height: 30px;
-            background: #e0e0e0;
+            height: 35px;
+            background: linear-gradient(90deg, #11998e, #38ef7d);
             border-radius: 15px;
             overflow: hidden;
-            margin: 20px 0;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #45a049);
-            transition: width 0.3s ease;
             text-align: center;
-            line-height: 30px;
+            line-height: 35px;
             color: white;
             font-weight: bold;
+            font-size: 16px;
+            transition: width 0.4s ease;
         }
-        .status {
-            padding: 10px;
-            margin: 10px 0;
+        .status-box {
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .status-success { 
+            background: linear-gradient(135deg, #d4edda, #c3e6cb); 
+            color: #155724; 
+            border-left: 4px solid #28a745;
+        }
+        .status-error { 
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb); 
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .status-info { 
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb); 
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        .log-container {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+            max-height: 450px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .log-item { 
+            margin: 8px 0; 
+            padding: 5px 10px;
             border-radius: 4px;
         }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
-        .log {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 15px;
-            margin-top: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 12px;
+        .log-success { 
+            color: #4ade80; 
+            background: rgba(74, 222, 128, 0.1);
         }
-        .log-item { margin: 5px 0; }
-        .log-success { color: #28a745; }
-        .log-error { color: #dc3545; }
-        .log-info { color: #17a2b8; }
+        .log-error { 
+            color: #f87171; 
+            background: rgba(248, 113, 113, 0.1);
+        }
+        .log-info { 
+            color: #60a5fa; 
+            background: rgba(96, 165, 250, 0.1);
+        }
+        .log-warning { 
+            color: #fbbf24; 
+            background: rgba(251, 191, 36, 0.1);
+        }
+        .provider-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .summary-card .label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .btn-home {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔄 API Aggregator - DramaBos</h1>
-        <p>Mengambil data dari multiple provider dan menyimpan ke cache global...</p>
+        <h1>🔄 Cron Aggregator - Nontonin</h1>
+        <p class="subtitle">Mengambil data trending dari 7 provider terverifikasi DramaBos API</p>
         
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress" style="width: 0%;">0%</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress" style="width: 0%;">0%</div>
         </div>
         
         <div id="status"></div>
-        <div class="log" id="log"></div>
+        
+        <div class="summary-grid" id="summary" style="display:none;">
+            <div class="summary-card">
+                <div class="number" id="total-items">0</div>
+                <div class="label">Total Drama</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" id="success-count">0</div>
+                <div class="label">Provider Sukses</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" id="error-count">0</div>
+                <div class="label">Provider Gagal</div>
+            </div>
+            <div class="summary-card">
+                <div class="number" id="cache-size">-</div>
+                <div class="label">Ukuran Cache</div>
+            </div>
+        </div>
+        
+        <div class="log-container" id="log"></div>
+        
+        <div id="action-buttons"></div>
     </div>
     
     <script>
@@ -122,15 +235,27 @@ $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
             var log = document.getElementById('log');
             var item = document.createElement('div');
             item.className = 'log-item log-' + type;
-            var time = new Date().toLocaleTimeString();
-            item.textContent = '[' + time + '] ' + message;
+            var time = new Date().toLocaleTimeString('id-ID');
+            item.innerHTML = '<span style="opacity:0.7">[' + time + ']</span> ' + message;
             log.appendChild(item);
             log.scrollTop = log.scrollHeight;
         }
         
         function updateProgress(percent) {
-            document.getElementById('progress').style.width = percent + '%';
-            document.getElementById('progress').textContent = Math.round(percent) + '%';
+            var bar = document.getElementById('progress');
+            bar.style.width = percent + '%';
+            bar.textContent = Math.round(percent) + '%';
+        }
+        
+        function updateSummary(items, success, errors) {
+            document.getElementById('summary').style.display = 'grid';
+            document.getElementById('total-items').textContent = items;
+            document.getElementById('success-count').textContent = success;
+            document.getElementById('error-count').textContent = errors;
+        }
+        
+        function updateCacheSize(size) {
+            document.getElementById('cache-size').textContent = size;
         }
     </script>
     
@@ -138,104 +263,107 @@ $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
 flush();
 ob_flush();
 
-// List of providers to aggregate (5-10 main providers)
-$providers = array(
-    'dramabox',
-    'shortmax',
-    'reelshort',
-    'starshort',
-    'dramabite',
-    'freereels',
-    'fundrama',
-    'microdrama',
-    'vigloo',
-    'bilitv'
+// Daftar 7 provider terverifikasi dengan endpoint unik berdasarkan dokumentasi resmi
+$verifiedProviders = array(
+    'dramabox',   // /dramabox/api/v1/discover
+    'shortmax',   // /shortmax/api/v1/popular
+    'reelshort',  // /reelshort/api/v1/featured
+    'starshort',  // /starshort/api/v1/trending
+    'dramabite',  // /dramabite/api/v1/recommend
+    'flickreels', // /flickreels/api/flickreels/trending?lang=en
+    'goodshort'   // /goodshort/api/v1/toppicks
 );
 
-$totalProviders = count($providers);
+$totalProviders = count($verifiedProviders);
 $completedProviders = 0;
 $globalFeed = array();
 $errors = array();
+$successfulProviders = array();
 $apiService = new ApiService();
 
-echo "<script>addLog('Memulai agregasi dari " . $totalProviders . " provider...', 'info');</script>";
+echo "<script>addLog('🚀 Memulai agregasi dari " . $totalProviders . " provider terverifikasi...', 'info');</script>";
+echo "<script>addLog('⏱️ Timeout: 300 detik | Cache: 6 jam', 'info');</script>";
 flush();
 ob_flush();
 
-// Loop through each provider
-foreach ($providers as $index => $provider) {
+// Loop melalui setiap provider terverifikasi
+foreach ($verifiedProviders as $index => $provider) {
     $startTime = microtime(true);
+    $providerBadge = '<span class="provider-badge">' . e($provider) . '</span>';
     
-    echo "<script>addLog('Mengambil data dari provider: " . htmlspecialchars($provider) . "...', 'info');</script>";
+    echo "<script>addLog('📡 Mengambil data dari " . $providerBadge . "...', 'info');</script>";
     flush();
     ob_flush();
     
     try {
-        // Try 'feed' endpoint first, fallback to 'trending' if needed
-        $feedType = 'feed';
-        $data = $apiService->getProviderFeed($provider, $feedType, true, 21600);
+        // Ambil trending menggunakan method getTrending yang sudah mapping endpoint per provider
+        $result = $apiService->getTrending($provider, 21600);
         
-        // If feed returns empty, try trending
-        if (empty($data) || (isset($data['data']) && empty($data['data']))) {
-            echo "<script>addLog('Feed kosong, mencoba endpoint trending...', 'info');</script>";
-            flush();
-            ob_flush();
+        // Cek apakah result valid dan punya data
+        if (!empty($result) && isset($result['data']) && is_array($result['data'])) {
+            $items = $result['data'];
             
-            $feedType = 'trending';
-            $data = $apiService->getProviderFeed($provider, $feedType, true, 21600);
-        }
-        
-        if (!empty($data)) {
-            // Extract items from response (handle different API response structures)
-            $items = array();
-            
-            if (isset($data['data']) && is_array($data['data'])) {
-                $items = $data['data'];
-            } elseif (isset($data['items']) && is_array($data['items'])) {
-                $items = $data['items'];
-            } elseif (isset($data['list']) && is_array($data['list'])) {
-                $items = $data['list'];
-            } elseif (is_array($data)) {
-                $items = $data;
-            }
-            
-            // Add source_provider tag to each item
+            // Tambahkan metadata ke setiap item
             foreach ($items as &$item) {
                 if (is_array($item)) {
+                    // Tambahkan tag source_provider
                     $item['source_provider'] = $provider;
-                    $item['feed_type'] = $feedType;
+                    // Tambahkan timestamp pengambilan
                     $item['fetched_at'] = date('Y-m-d H:i:s');
+                    // Tambahkan info endpoint yang digunakan
+                    $item['aggregated_by'] = 'cron_aggregator';
+                    
+                    // Normalisasi field title jika ada variasi
+                    if (!isset($item['title']) && isset($item['name'])) {
+                        $item['title'] = $item['name'];
+                    }
+                    
+                    // Normalisasi field cover jika ada variasi
+                    if (!isset($item['cover']) && isset($item['poster'])) {
+                        $item['cover'] = $item['poster'];
+                    }
+                    
+                    // Bersihkan URL cover dari spasi trailing
+                    if (isset($item['cover']) && is_string($item['cover'])) {
+                        $item['cover'] = trim($item['cover']);
+                    }
                 }
             }
-            unset($item); // Break reference
+            unset($item); // Putuskan referensi
             
-            // Merge into global feed
+            // Gabungkan ke global feed
             $globalFeed = array_merge($globalFeed, $items);
+            $successfulProviders[] = $provider;
             
             $endTime = microtime(true);
             $duration = round($endTime - $startTime, 2);
             $itemCount = count($items);
             
-            echo "<script>addLog('✓ Berhasil mengambil " . $itemCount . " item dari " . $provider . " (" . $duration . " detik)', 'success');</script>";
+            echo "<script>addLog('✅ " . $providerBadge . " Berhasil! " . $itemCount . " drama (" . $duration . "s)', 'success');</script>";
         } else {
-            echo "<script>addLog('✗ Gagal mengambil data dari " . $provider . " (response kosong)', 'error');</script>";
+            // Response kosong atau tidak valid
+            echo "<script>addLog('❌ " . $providerBadge . " Response kosong atau tidak valid', 'error');</script>";
             $errors[] = $provider . ': Response kosong';
         }
+        
     } catch (Exception $e) {
-        echo "<script>addLog('✗ Error pada " . $provider . ": " . htmlspecialchars($e->getMessage()) . "', 'error');</script>";
+        // Catch error per provider - JANGAN biarkan error menyebar!
+        $errorMsg = htmlspecialchars($e->getMessage());
+        echo "<script>addLog('💥 " . $providerBadge . " Error: " . $errorMsg . "', 'error');</script>";
         $errors[] = $provider . ': ' . $e->getMessage();
     }
     
-    // Update progress
+    // Update progress bar
     $completedProviders++;
     $progress = ($completedProviders / $totalProviders) * 100;
     echo "<script>updateProgress(" . $progress . ");</script>";
+    echo "<script>updateSummary(" . count($globalFeed) . ", " . count($successfulProviders) . ", " . count($errors) . ");</script>";
     flush();
     ob_flush();
     
-    // Sleep between requests to avoid rate limiting (2 seconds)
+    // Beri jeda 2 detik antar request untuk hindari rate limit API
     if ($index < $totalProviders - 1) {
-        echo "<script>addLog('Menunggu 2 detik sebelum request berikutnya...', 'info');</script>";
+        echo "<script>addLog('⏳ Menunggu 2 detik sebelum provider berikutnya...', 'warning');</script>";
         flush();
         ob_flush();
         sleep(2);
@@ -243,62 +371,69 @@ foreach ($providers as $index => $provider) {
 }
 
 // Save aggregated data to global_feed.json
-echo "<script>addLog('Menyimpan " . count($globalFeed) . " item ke global_feed.json...', 'info');</script>";
+echo "<script>addLog('💾 Menyimpan " . count($globalFeed) . " item ke global_feed.json...', 'info');</script>";
 flush();
 ob_flush();
 
 try {
-    // Ensure cache directory exists
+    // Pastikan direktori cache ada
     if (!is_dir(dirname($globalFeedPath))) {
         mkdir(dirname($globalFeedPath), 0755, true);
     }
     
-    // Prepare final data structure
+    // Siapkan struktur data final
     $finalData = array(
         'status' => 'success',
         'total_items' => count($globalFeed),
-        'providers_count' => $totalProviders - count($errors),
+        'providers_count' => count($successfulProviders),
         'errors_count' => count($errors),
         'last_updated' => date('Y-m-d H:i:s'),
         'timestamp' => time(),
         'data' => $globalFeed
     );
     
-    // Save to file
+    // Simpan ke file
     $cacheFile = $globalFeedPath;
     $jsonContent = json_encode($finalData, JSON_PRETTY_PRINT);
     
     if (file_put_contents($cacheFile, $jsonContent)) {
         $fileSize = round(filesize($cacheFile) / 1024, 2);
-        echo "<script>addLog('✓ Berhasil menyimpan global_feed.json (" . $fileSize . " KB)', 'success');</script>";
-        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status success\"><strong>✅ Agregasi Selesai!</strong><br>Total: " . count($globalFeed) . " item dari " . ($totalProviders - count($errors)) . " provider berhasil.</div>';</script>";
+        echo "<script>addLog('✅ Berhasil menyimpan global_feed.json (" . $fileSize . " KB)', 'success');</script>";
+        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-success\"><strong>✅ Agregasi Selesai!</strong><br>Total: <strong>" . count($globalFeed) . " drama</strong> dari <strong>" . count($successfulProviders) . " provider</strong> berhasil disimpan.</div>';</script>";
+        
+        // Update summary card dengan ukuran cache
+        echo "<script>updateCacheSize('" . $fileSize . " KB');</script>";
+        
+        // Tampilkan tombol link ke halaman home
+        $homeUrl = url('home');
+        echo "<script>document.getElementById('action-buttons').innerHTML = '<a href=\"" . e($homeUrl) . "\" class=\"btn-home\">🏠 Buka Halaman Home</a>';</script>";
     } else {
-        echo "<script>addLog('✗ Gagal menyimpan file cache', 'error');</script>";
-        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status error\"><strong>❌ Gagal Menyimpan Cache</strong></div>';</script>";
+        echo "<script>addLog('❌ Gagal menyimpan file cache', 'error');</script>";
+        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-error\"><strong>❌ Gagal Menyimpan Cache</strong><br>Periksa permission direktori storage/cache/</div>';</script>";
     }
 } catch (Exception $e) {
-    echo "<script>addLog('✗ Error saat menyimpan: " . htmlspecialchars($e->getMessage()) . "', 'error');</script>";
-    echo "<script>document.getElementById('status').innerHTML = '<div class=\"status error\"><strong>❌ Error: " . htmlspecialchars($e->getMessage()) . "</strong></div>';</script>";
+    echo "<script>addLog('❌ Error saat menyimpan: " . e($e->getMessage()) . "', 'error');</script>";
+    echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-error\"><strong>❌ Error: " . e($e->getMessage()) . "</strong></div>';</script>";
 }
 
-// Display summary
+// Tampilkan ringkasan lengkap
 echo "<script>addLog('========================================', 'info');</script>";
-echo "<script>addLog('RINGKASAN:', 'info');</script>";
-echo "<script>addLog('Total Provider: " . $totalProviders . "', 'info');</script>";
-echo "<script>addLog('Berhasil: " . ($totalProviders - count($errors)) . "', 'success');</script>";
-echo "<script>addLog('Gagal: " . count($errors) . "', 'error');</script>";
-echo "<script>addLog('Total Item: " . count($globalFeed) . "', 'info');</script>";
+echo "<script>addLog('📊 RINGKASAN AGREGASI:', 'info');</script>";
+echo "<script>addLog('Total Provider Dicoba: " . $totalProviders . "', 'info');</script>";
+echo "<script>addLog('Provider Berhasil: " . count($successfulProviders) . " (" . implode(', ', $successfulProviders) . ")', 'success');</script>";
+echo "<script>addLog('Provider Gagal: " . count($errors) . "', 'error');</script>";
+echo "<script>addLog('Total Drama Terkumpul: " . count($globalFeed) . " item', 'info');</script>";
 
 if (!empty($errors)) {
     echo "<script>addLog('----------------------------------------', 'info');</script>";
-    echo "<script>addLog('ERROR DETAILS:', 'error');</script>";
+    echo "<script>addLog('⚠️ DETAIL ERROR:', 'error');</script>";
     foreach ($errors as $error) {
-        echo "<script>addLog('- " . htmlspecialchars($error) . "', 'error');</script>";
+        echo "<script>addLog('- " . e($error) . "', 'error');</script>";
     }
 }
 
 echo "<script>addLog('========================================', 'info');</script>";
-echo "<script>addLog('Selesai! Refresh halaman Home untuk melihat data terbaru.', 'success');</script>";
+echo "<script>addLog('✅ Selesai! Refresh halaman Home untuk melihat data terbaru.', 'success');</script>";
 
 ?>
     </div>
