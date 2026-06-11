@@ -1,0 +1,2679 @@
+StarShort API
+Access StarShort short dramas through a unified API: search titles, browse trending and popular feeds, retrieve episode lists with cover art, and resolve HLS streaming URLs via DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/starshort/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search StarShort Dramas
+GEThttps://prod-api.dramabos.live/starshort/api/v1/search?q=love
+Get StarShort Episodes
+GEThttps://prod-api.dramabos.live/starshort/api/v1/episodes/{id}
+Get StarShort Streaming URLs
+GEThttps://prod-api.dramabos.live/starshort/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from StarShort endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/starshort/api/v1/search?q=love
+[
+  {
+    "id": "8842",
+    "title": "Love Beyond Words",
+    "cover": "https://cdn.dramabos.live/video/starshort/covers/8842.jpg",
+    "episodes": 72,
+    "genre": "Romance",
+    "source": "starshort"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/starshort/api/v1/detail/8842
+{
+  "id": "8842",
+  "title": "Love Beyond Words",
+  "cover": "https://cdn.dramabos.live/video/starshort/covers/8842.jpg",
+  "desc": "A deaf painter meets a songwriter...",
+  "episodes": 72,
+  "genre": "Romance",
+  "language": "en",
+  "source": "starshort"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/starshort/api/v1/play/8842/1
+{
+  "dramaId": "8842",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/starshort/hls/8842/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/starshort/hls/8842/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/starshort/hls/8842/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/starshort/hls/8842/ep1/480p.m3u8" }
+  ],
+  "duration": 85,
+  "source": "starshort"
+}
+API Examples
+All StarShort endpoints (base /starshort/api/v1):
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/search?q=love
+Search StarShort dramas by keyword
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/trending
+Trending dramas on StarShort
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/popular
+Popular dramas feed
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/latest
+Latest releases feed
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/starshort/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Home
+/
+Providers
+/
+DramaBite
+DramaBite API
+Access DramaBite short drama catalog: search by keyword or genre, browse recommended and new release feeds, retrieve episode lists, and stream videos via HLS with DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/dramabite/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search DramaBite Dramas
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/search?q=love
+Get DramaBite Episodes
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/episodes/{id}
+Get DramaBite Streaming URLs
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from DramaBite endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/search?q=love
+[
+  {
+    "id": "5219",
+    "title": "Crimson Vows",
+    "cover": "https://cdn.dramabos.live/video/dramabite/covers/5219.jpg",
+    "episodes": 65,
+    "genre": "Thriller",
+    "source": "dramabite"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/detail/5219
+{
+  "id": "5219",
+  "title": "Crimson Vows",
+  "cover": "https://cdn.dramabos.live/video/dramabite/covers/5219.jpg",
+  "desc": "A bride discovers her groom's dark secret on their wedding night...",
+  "episodes": 65,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "dramabite"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/play/5219/1
+{
+  "dramaId": "5219",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/dramabite/hls/5219/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/dramabite/hls/5219/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/dramabite/hls/5219/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/dramabite/hls/5219/ep1/480p.m3u8" }
+  ],
+  "duration": 78,
+  "source": "dramabite"
+}
+API Examples
+All DramaBite endpoints (base /dramabite/api/v1):
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/search?q=love
+Search DramaBite dramas
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/recommend
+Recommended dramas feed
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/newrelease
+New releases feed
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/genre?type=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/dramabite/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+FreeReels API
+Access FreeReels free short dramas: search titles, browse daily picks and trending lists, get episode details with cover art, and stream episodes via HLS with DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/freereels/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search FreeReels Dramas
+GEThttps://prod-api.dramabos.live/freereels/api/v1/search?q=love
+Get FreeReels Episodes
+GEThttps://prod-api.dramabos.live/freereels/api/v1/episodes/{id}
+Get FreeReels Streaming URLs
+GEThttps://prod-api.dramabos.live/freereels/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from FreeReels endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/freereels/api/v1/search?q=love
+[
+  {
+    "id": "3071",
+    "title": "Fate's Cruel Game",
+    "cover": "https://cdn.dramabos.live/video/freereels/covers/3071.jpg",
+    "episodes": 80,
+    "genre": "Drama",
+    "source": "freereels"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/freereels/api/v1/detail/3071
+{
+  "id": "3071",
+  "title": "Fate's Cruel Game",
+  "cover": "https://cdn.dramabos.live/video/freereels/covers/3071.jpg",
+  "desc": "Two strangers discover they were switched at birth...",
+  "episodes": 80,
+  "genre": "Drama",
+  "language": "en",
+  "source": "freereels"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/freereels/api/v1/play/3071/1
+{
+  "dramaId": "3071",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/freereels/hls/3071/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/freereels/hls/3071/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/freereels/hls/3071/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/freereels/hls/3071/ep1/480p.m3u8" }
+  ],
+  "duration": 92,
+  "source": "freereels"
+}
+API Examples
+All FreeReels endpoints (base /freereels/api/v1):
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/search?q=love
+Search FreeReels dramas
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/daily
+Daily picks feed
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/trending
+Trending dramas
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/completed
+Completed dramas catalog
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/freereels/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+FunDrama API
+Access FunDrama short dramas: search by keyword, browse hot and recommended feeds, retrieve full episode lists, and resolve streaming URLs through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/fundrama/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search FunDrama Dramas
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/search?q=love
+Get FunDrama Episodes
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/episodes/{id}
+Get FunDrama Streaming URLs
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from FunDrama endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/search?q=love
+[
+  {
+    "id": "4415",
+    "title": "The CEO's Secret Heir",
+    "cover": "https://cdn.dramabos.live/video/fundrama/covers/4415.jpg",
+    "episodes": 68,
+    "genre": "Romance",
+    "source": "fundrama"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/detail/4415
+{
+  "id": "4415",
+  "title": "The CEO's Secret Heir",
+  "cover": "https://cdn.dramabos.live/video/fundrama/covers/4415.jpg",
+  "desc": "A single mother discovers her son's father is a billionaire...",
+  "episodes": 68,
+  "genre": "Romance",
+  "language": "en",
+  "source": "fundrama"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/play/4415/1
+{
+  "dramaId": "4415",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/480p.m3u8" }
+  ],
+  "duration": 88,
+  "source": "fundrama"
+}
+API Examples
+All FunDrama endpoints (base /fundrama/api/v1):
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/search?q=love
+Search FunDrama dramas
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/recommend
+Recommended dramas
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/classify?genre=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+FunDrama API
+Access FunDrama short dramas: search by keyword, browse hot and recommended feeds, retrieve full episode lists, and resolve streaming URLs through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/fundrama/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search FunDrama Dramas
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/search?q=love
+Get FunDrama Episodes
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/episodes/{id}
+Get FunDrama Streaming URLs
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from FunDrama endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/search?q=love
+[
+  {
+    "id": "4415",
+    "title": "The CEO's Secret Heir",
+    "cover": "https://cdn.dramabos.live/video/fundrama/covers/4415.jpg",
+    "episodes": 68,
+    "genre": "Romance",
+    "source": "fundrama"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/detail/4415
+{
+  "id": "4415",
+  "title": "The CEO's Secret Heir",
+  "cover": "https://cdn.dramabos.live/video/fundrama/covers/4415.jpg",
+  "desc": "A single mother discovers her son's father is a billionaire...",
+  "episodes": 68,
+  "genre": "Romance",
+  "language": "en",
+  "source": "fundrama"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/play/4415/1
+{
+  "dramaId": "4415",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/fundrama/hls/4415/ep1/480p.m3u8" }
+  ],
+  "duration": 88,
+  "source": "fundrama"
+}
+API Examples
+All FunDrama endpoints (base /fundrama/api/v1):
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/search?q=love
+Search FunDrama dramas
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/recommend
+Recommended dramas
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/classify?genre=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/fundrama/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+MicroDrama API
+Access MicroDrama short-form content: search dramas, browse curated feeds and rankings, retrieve episodes, and resolve HLS streaming URLs via DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/microdrama/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search MicroDrama Dramas
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/search?q=love
+Get MicroDrama Episodes
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/episodes/{id}
+Get MicroDrama Streaming URLs
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from MicroDrama endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/search?q=love
+[
+  {
+    "id": "6623",
+    "title": "Shattered Crown",
+    "cover": "https://cdn.dramabos.live/video/microdrama/covers/6623.jpg",
+    "episodes": 90,
+    "genre": "Fantasy",
+    "source": "microdrama"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/detail/6623
+{
+  "id": "6623",
+  "title": "Shattered Crown",
+  "cover": "https://cdn.dramabos.live/video/microdrama/covers/6623.jpg",
+  "desc": "A dethroned princess fights to reclaim her kingdom...",
+  "episodes": 90,
+  "genre": "Fantasy",
+  "language": "en",
+  "source": "microdrama"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/play/6623/1
+{
+  "dramaId": "6623",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/microdrama/hls/6623/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/microdrama/hls/6623/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/microdrama/hls/6623/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/microdrama/hls/6623/ep1/480p.m3u8" }
+  ],
+  "duration": 75,
+  "source": "microdrama"
+}
+API Examples
+All MicroDrama endpoints (base /microdrama/api/v1):
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/search?q=love
+Search MicroDrama titles
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/feed
+Curated homepage feed
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/ranking
+Ranked dramas
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/category?type=thriller
+Browse by category
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/microdrama/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Vigloo API
+Access Vigloo short dramas globally: search titles, browse trending and top-rated feeds, retrieve episode metadata, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/vigloo/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Vigloo Dramas
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/search?q=love
+Get Vigloo Episodes
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/episodes/{id}
+Get Vigloo Streaming URLs
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Vigloo endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/search?q=love
+[
+  {
+    "id": "7758",
+    "title": "Tangled Hearts",
+    "cover": "https://cdn.dramabos.live/video/vigloo/covers/7758.jpg",
+    "episodes": 54,
+    "genre": "Romance",
+    "source": "vigloo"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/detail/7758
+{
+  "id": "7758",
+  "title": "Tangled Hearts",
+  "cover": "https://cdn.dramabos.live/video/vigloo/covers/7758.jpg",
+  "desc": "A marriage counselor falls for her patient's husband...",
+  "episodes": 54,
+  "genre": "Romance",
+  "language": "en",
+  "source": "vigloo"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/play/7758/1
+{
+  "dramaId": "7758",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/vigloo/hls/7758/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/vigloo/hls/7758/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/vigloo/hls/7758/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/vigloo/hls/7758/ep1/480p.m3u8" }
+  ],
+  "duration": 82,
+  "source": "vigloo"
+}
+API Examples
+All Vigloo endpoints (base /vigloo/api/v1):
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/search?q=love
+Search Vigloo dramas
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/toprated
+Top-rated dramas
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/newrelease
+New releases feed
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/vigloo/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+BiliTV API
+Access BiliTV Chinese drama catalog: search titles, browse home and channel feeds, fetch episode lists, and resolve HLS streams through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/bilitv/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search BiliTV Dramas
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/search?q=love
+Get BiliTV Episodes
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/episodes/{id}
+Get BiliTV Streaming URLs
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from BiliTV endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/search?q=love
+[
+  {
+    "id": "9134",
+    "title": "Moonlit Shadows",
+    "cover": "https://cdn.dramabos.live/video/bilitv/covers/9134.jpg",
+    "episodes": 76,
+    "genre": "Suspense",
+    "source": "bilitv"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/detail/9134
+{
+  "id": "9134",
+  "title": "Moonlit Shadows",
+  "cover": "https://cdn.dramabos.live/video/bilitv/covers/9134.jpg",
+  "desc": "A night-shift nurse uncovers a hospital conspiracy...",
+  "episodes": 76,
+  "genre": "Suspense",
+  "language": "en",
+  "source": "bilitv"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/play/9134/1
+{
+  "dramaId": "9134",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/bilitv/hls/9134/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/bilitv/hls/9134/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/bilitv/hls/9134/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/bilitv/hls/9134/ep1/480p.m3u8" }
+  ],
+  "duration": 90,
+  "source": "bilitv"
+}
+API Examples
+All BiliTV endpoints (base /bilitv/api/v1):
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/search?q=love
+Search BiliTV dramas
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/home
+Home feed
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/channel?type=romance
+Browse by channel
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/ranking
+Ranking / trending dramas
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/bilitv/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+DramaBox API
+Unified access to DramaBox short dramas: browse the catalog, search titles, fetch chapter and episode lists, and resolve streaming URLs across qualities.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/dramabox/api/v1/search?keyword=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search DramaBox Dramas
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/search?keyword=love
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/suggest?keyword=lo
+Get DramaBox Episodes
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/chapters/{id}
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/episodes/{id}
+Get DramaBox Streaming URLs
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/download/{id}
+Example API Responses
+Sample JSON responses from DramaBox endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/search?keyword=love
+[
+  {
+    "id": "2047",
+    "title": "Stolen Destiny",
+    "cover": "https://cdn.dramabos.live/video/dramabox/covers/2047.jpg",
+    "episodes": 60,
+    "genre": "Mystery",
+    "source": "dramabox"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/detail/2047
+{
+  "id": "2047",
+  "title": "Stolen Destiny",
+  "cover": "https://cdn.dramabos.live/video/dramabox/covers/2047.jpg",
+  "desc": "A woman wakes up in someone else's life...",
+  "episodes": 60,
+  "genre": "Mystery",
+  "language": "en",
+  "source": "dramabox"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/download/2047
+{
+  "dramaId": "2047",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/dramabox/hls/2047/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/dramabox/hls/2047/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/dramabox/hls/2047/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/dramabox/hls/2047/ep1/480p.m3u8" }
+  ],
+  "duration": 95,
+  "source": "dramabox"
+}
+API Examples
+All DramaBox endpoints (base /dramabox/api/v1):
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/search?keyword=love
+Search DramaBox titles by keyword
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/suggest?keyword=lo
+Search suggestions / autocomplete
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/discover
+Discover / browse the catalog
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/theater
+Theater feed of featured dramas
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/rank
+Trending and ranked dramas
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/classify
+Browse by category / genre
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/detail/{id}
+Full drama metadata by id
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/chapters/{id}
+Chapter list for a drama
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/dramabox/api/v1/download/{id}
+Resolve streaming / download URLs
+
+DramaWave API
+Access DramaWave short dramas: search titles, browse wave picks and featured feeds, retrieve full episode catalogs with thumbnails, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/dramawave/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search DramaWave Dramas
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/search?q=love
+Get DramaWave Episodes
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/episodes/{id}
+Get DramaWave Streaming URLs
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from DramaWave endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/search?q=love
+[
+  {
+    "id": "1193",
+    "title": "Tides of Revenge",
+    "cover": "https://cdn.dramabos.live/video/dramawave/covers/1193.jpg",
+    "episodes": 85,
+    "genre": "Thriller",
+    "source": "dramawave"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/detail/1193
+{
+  "id": "1193",
+  "title": "Tides of Revenge",
+  "cover": "https://cdn.dramabos.live/video/dramawave/covers/1193.jpg",
+  "desc": "A wrongfully convicted woman returns to expose the truth...",
+  "episodes": 85,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "dramawave"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/play/1193/1
+{
+  "dramaId": "1193",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/dramawave/hls/1193/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/dramawave/hls/1193/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/dramawave/hls/1193/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/dramawave/hls/1193/ep1/480p.m3u8" }
+  ],
+  "duration": 80,
+  "source": "dramawave"
+}
+API Examples
+All DramaWave endpoints (base /dramawave/api/v1):
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/search?q=love
+Search DramaWave dramas
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/featured
+Featured dramas feed
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/wavepicks
+Editor's wave picks
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/popular
+Popular dramas
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/dramawave/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+NetShort API
+Access NetShort short dramas: search titles, browse daily updates and hot lists, get episode lists with thumbnails, and resolve HLS streams via DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/netshort/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search NetShort Dramas
+GEThttps://prod-api.dramabos.live/netshort/api/v1/search?q=love
+Get NetShort Episodes
+GEThttps://prod-api.dramabos.live/netshort/api/v1/episodes/{id}
+Get NetShort Streaming URLs
+GEThttps://prod-api.dramabos.live/netshort/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from NetShort endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/netshort/api/v1/search?q=love
+[
+  {
+    "id": "3856",
+    "title": "The Forgotten Wife",
+    "cover": "https://cdn.dramabos.live/video/netshort/covers/3856.jpg",
+    "episodes": 70,
+    "genre": "Drama",
+    "source": "netshort"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/netshort/api/v1/detail/3856
+{
+  "id": "3856",
+  "title": "The Forgotten Wife",
+  "cover": "https://cdn.dramabos.live/video/netshort/covers/3856.jpg",
+  "desc": "An amnesiac husband doesn't remember his wife of ten years...",
+  "episodes": 70,
+  "genre": "Drama",
+  "language": "en",
+  "source": "netshort"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/netshort/api/v1/play/3856/1
+{
+  "dramaId": "3856",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/netshort/hls/3856/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/netshort/hls/3856/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/netshort/hls/3856/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/netshort/hls/3856/ep1/480p.m3u8" }
+  ],
+  "duration": 87,
+  "source": "netshort"
+}
+API Examples
+All NetShort endpoints (base /netshort/api/v1):
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/search?q=love
+Search NetShort dramas
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/daily
+Daily updated dramas
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/finished
+Completed dramas
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/netshort/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+iDrama API
+Access iDrama short dramas: home navigation, channel tabs and sections, search, drama and episode lists, episode unlocking, and proxied streaming.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/idrama/home?lang=id" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search iDrama Dramas
+GEThttps://prod-api.dramabos.live/idrama/search?q=cinta+sejati
+Get iDrama Episodes
+GEThttps://prod-api.dramabos.live/idrama/episodes/{id}?lang=id
+Get iDrama Streaming URLs
+GEThttps://prod-api.dramabos.live/idrama/play/{id}/{ep}?lang=id
+GEThttps://prod-api.dramabos.live/idrama/unlock/{id}/{ep}?lang=id
+GEThttps://prod-api.dramabos.live/idrama/proxy?url=...
+Example API Responses
+Sample JSON responses from iDrama endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/idrama/search?q=love
+[
+  {
+    "id": "6401",
+    "title": "Cinta Tersembunyi",
+    "cover": "https://cdn.dramabos.live/video/idrama/covers/6401.jpg",
+    "episodes": 58,
+    "genre": "Romance",
+    "source": "idrama"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/idrama/drama/6401?lang=id
+{
+  "id": "6401",
+  "title": "Cinta Tersembunyi",
+  "cover": "https://cdn.dramabos.live/video/idrama/covers/6401.jpg",
+  "desc": "A hidden love between rival family heirs...",
+  "episodes": 58,
+  "genre": "Romance",
+  "language": "id",
+  "source": "idrama"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/idrama/play/6401/1?lang=id
+{
+  "dramaId": "6401",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/idrama/hls/6401/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/idrama/hls/6401/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/idrama/hls/6401/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/idrama/hls/6401/ep1/480p.m3u8" }
+  ],
+  "duration": 83,
+  "source": "idrama"
+}
+API Examples
+All iDrama endpoints (base /idrama):
+
+GEThttps://prod-api.dramabos.live/idrama/home?lang=id
+Home navigation channels
+
+GEThttps://prod-api.dramabos.live/idrama/tab/{id}?lang=id
+Channel tab listing
+
+GEThttps://prod-api.dramabos.live/idrama/section/{id}?lang=id
+Section pagination
+
+GEThttps://prod-api.dramabos.live/idrama/search?q=cinta+sejati
+Search iDrama titles
+
+GEThttps://prod-api.dramabos.live/idrama/drama/{id}?lang=id
+Drama detail + episode list
+
+GEThttps://prod-api.dramabos.live/idrama/episodes/{id}?lang=id
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/idrama/play/{id}/{ep}?lang=id
+Episode playback info
+
+GEThttps://prod-api.dramabos.live/idrama/unlock/{id}/{ep}?lang=id
+Unlock an episode + resolve 720p stream
+
+GEThttps://prod-api.dramabos.live/idrama/proxy?url=...
+m3u8 / media streaming proxy
+
+ShortMax API
+Access ShortMax short dramas: curated home feeds, for-you, popular and ranking lists, full episode catalogs, and signed HLS streaming endpoints.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/shortmax/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search ShortMax Dramas
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/search?q=love
+Get ShortMax Episodes
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/episodes/{code}
+Get ShortMax Streaming URLs
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/play/{code}
+Example API Responses
+Sample JSON responses from ShortMax endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/search?q=love
+[
+  {
+    "code": "SM7829",
+    "title": "Echoes of Betrayal",
+    "cover": "https://cdn.dramabos.live/video/shortmax/covers/SM7829.jpg",
+    "episodes": 75,
+    "genre": "Thriller",
+    "source": "shortmax"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/detail/SM7829
+{
+  "code": "SM7829",
+  "title": "Echoes of Betrayal",
+  "cover": "https://cdn.dramabos.live/video/shortmax/covers/SM7829.jpg",
+  "desc": "A twin sister takes over her sibling's identity...",
+  "episodes": 75,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "shortmax"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/play/SM7829
+{
+  "code": "SM7829",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/shortmax/hls/SM7829/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/shortmax/hls/SM7829/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/shortmax/hls/SM7829/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/shortmax/hls/SM7829/ep1/480p.m3u8" }
+  ],
+  "duration": 79,
+  "source": "shortmax"
+}
+API Examples
+All ShortMax endpoints (base /shortmax/api/v1):
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/search?q=love
+Search ShortMax titles
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/home
+Curated home feed
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/foryou
+Personalized for-you feed
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/popular
+Popular dramas
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/ranking
+Ranked / trending dramas
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/detail/{code}
+Drama metadata by code
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/episodes/{code}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/alleps/{code}
+All episodes with resolved URLs
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/play/{code}
+Single episode playback URL
+
+GEThttps://prod-api.dramabos.live/shortmax/api/v1/languages
+Supported languages
+
+GoodShort API
+Access GoodShort curated short dramas: search by keyword, browse top picks and trending feeds, retrieve episodes with cover images, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/goodshort/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search GoodShort Dramas
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/search?q=love
+Get GoodShort Episodes
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/episodes/{id}
+Get GoodShort Streaming URLs
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from GoodShort endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/search?q=love
+[
+  {
+    "id": "4488",
+    "title": "Golden Redemption",
+    "cover": "https://cdn.dramabos.live/video/goodshort/covers/4488.jpg",
+    "episodes": 62,
+    "genre": "Drama",
+    "source": "goodshort"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/detail/4488
+{
+  "id": "4488",
+  "title": "Golden Redemption",
+  "cover": "https://cdn.dramabos.live/video/goodshort/covers/4488.jpg",
+  "desc": "A disgraced CEO rebuilds from nothing...",
+  "episodes": 62,
+  "genre": "Drama",
+  "language": "en",
+  "source": "goodshort"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/play/4488/1
+{
+  "dramaId": "4488",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/goodshort/hls/4488/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/goodshort/hls/4488/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/goodshort/hls/4488/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/goodshort/hls/4488/ep1/480p.m3u8" }
+  ],
+  "duration": 91,
+  "source": "goodshort"
+}
+API Examples
+All GoodShort endpoints (base /goodshort/api/v1):
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/search?q=love
+Search GoodShort dramas
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/toppicks
+Top picks feed
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/trending
+Trending dramas
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/genre?type=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/goodshort/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Melolo API
+Access Melolo short dramas: search titles, browse melodrama picks and hot feeds, retrieve episodes, and stream via HLS through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/melolo/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Melolo Dramas
+GEThttps://prod-api.dramabos.live/melolo/api/v1/search?q=love
+Get Melolo Episodes
+GEThttps://prod-api.dramabos.live/melolo/api/v1/episodes/{id}
+Get Melolo Streaming URLs
+GEThttps://prod-api.dramabos.live/melolo/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Melolo endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/melolo/api/v1/search?q=love
+[
+  {
+    "id": "5572",
+    "title": "Tears in the Rain",
+    "cover": "https://cdn.dramabos.live/video/melolo/covers/5572.jpg",
+    "episodes": 48,
+    "genre": "Melodrama",
+    "source": "melolo"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/melolo/api/v1/detail/5572
+{
+  "id": "5572",
+  "title": "Tears in the Rain",
+  "cover": "https://cdn.dramabos.live/video/melolo/covers/5572.jpg",
+  "desc": "A blind violinist discovers her donor's dark past...",
+  "episodes": 48,
+  "genre": "Melodrama",
+  "language": "en",
+  "source": "melolo"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/melolo/api/v1/play/5572/1
+{
+  "dramaId": "5572",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/melolo/hls/5572/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/melolo/hls/5572/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/melolo/hls/5572/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/melolo/hls/5572/ep1/480p.m3u8" }
+  ],
+  "duration": 86,
+  "source": "melolo"
+}
+API Examples
+All Melolo endpoints (base /melolo/api/v1):
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/search?q=love
+Search Melolo dramas
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/picks
+Editor's picks
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/latest
+Latest releases
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/melolo/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Velolo API
+Access Velolo vertical short dramas: search titles, browse trending and for-you feeds, get episode details, and stream in portrait mode via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/velolo/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Velolo Dramas
+GEThttps://prod-api.dramabos.live/velolo/api/v1/search?q=love
+Get Velolo Episodes
+GEThttps://prod-api.dramabos.live/velolo/api/v1/episodes/{id}
+Get Velolo Streaming URLs
+GEThttps://prod-api.dramabos.live/velolo/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Velolo endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/velolo/api/v1/search?q=love
+[
+  {
+    "id": "7103",
+    "title": "Vertical Obsession",
+    "cover": "https://cdn.dramabos.live/video/velolo/covers/7103.jpg",
+    "episodes": 55,
+    "genre": "Thriller",
+    "source": "velolo"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/velolo/api/v1/detail/7103
+{
+  "id": "7103",
+  "title": "Vertical Obsession",
+  "cover": "https://cdn.dramabos.live/video/velolo/covers/7103.jpg",
+  "desc": "A social media star's fan turns dangerous...",
+  "episodes": 55,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "velolo"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/velolo/api/v1/play/7103/1
+{
+  "dramaId": "7103",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/velolo/hls/7103/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/velolo/hls/7103/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/velolo/hls/7103/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/velolo/hls/7103/ep1/480p.m3u8" }
+  ],
+  "duration": 77,
+  "source": "velolo"
+}
+API Examples
+All Velolo endpoints (base /velolo/api/v1):
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/search?q=love
+Search Velolo dramas
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/foryou
+Personalized for-you feed
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/completed
+Completed dramas
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/velolo/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+ReelShort API
+Access ReelShort premium short dramas: search titles, browse featured and ranking feeds, retrieve full episode catalogs, and resolve HLS streaming URLs through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/reelshort/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search ReelShort Dramas
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/search?q=love
+Get ReelShort Episodes
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/episodes/{id}
+Get ReelShort Streaming URLs
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from ReelShort endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/search?q=love
+[
+  {
+    "id": "6215",
+    "title": "The Billionaire's Contract",
+    "cover": "https://cdn.dramabos.live/video/reelshort/covers/6215.jpg",
+    "episodes": 88,
+    "genre": "Romance",
+    "source": "reelshort"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/detail/6215
+{
+  "id": "6215",
+  "title": "The Billionaire's Contract",
+  "cover": "https://cdn.dramabos.live/video/reelshort/covers/6215.jpg",
+  "desc": "A fake marriage turns into real love...",
+  "episodes": 88,
+  "genre": "Romance",
+  "language": "en",
+  "source": "reelshort"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/play/6215/1
+{
+  "dramaId": "6215",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/reelshort/hls/6215/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/reelshort/hls/6215/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/reelshort/hls/6215/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/reelshort/hls/6215/ep1/480p.m3u8" }
+  ],
+  "duration": 84,
+  "source": "reelshort"
+}
+API Examples
+All ReelShort endpoints (base /reelshort/api/v1):
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/search?q=love
+Search ReelShort dramas
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/featured
+Featured dramas feed
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/ranking
+Ranked dramas
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/foryou
+For-you recommendations
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/genre?type=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/reelshort/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+FlickReels API
+Access FlickReels short dramas: trending, for-you, latest and hot-rank feeds, search, full episode lists, and signed HLS streaming.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/flickreels/api/flickreels/trending?lang=en" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search FlickReels Dramas
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/search?q=love
+Get FlickReels Episodes
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/allepisode?id={id}
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/episode?id={id}&ep=1
+Get FlickReels Streaming URLs
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/hls?id={id}&ep=1
+Example API Responses
+Sample JSON responses from FlickReels endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/search?q=love
+[
+  {
+    "id": "8956",
+    "title": "Phoenix Rising",
+    "cover": "https://cdn.dramabos.live/video/flickreels/covers/8956.jpg",
+    "episodes": 64,
+    "genre": "Drama",
+    "source": "flickreels"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/detail?id=8956
+{
+  "id": "8956",
+  "title": "Phoenix Rising",
+  "cover": "https://cdn.dramabos.live/video/flickreels/covers/8956.jpg",
+  "desc": "A disgraced surgeon fights for a second chance...",
+  "episodes": 64,
+  "genre": "Drama",
+  "language": "en",
+  "source": "flickreels"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/episode?id=8956&ep=1
+{
+  "dramaId": "8956",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/flickreels/hls/8956/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/flickreels/hls/8956/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/flickreels/hls/8956/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/flickreels/hls/8956/ep1/480p.m3u8" }
+  ],
+  "duration": 93,
+  "source": "flickreels"
+}
+API Examples
+All FlickReels endpoints (base /flickreels/api/flickreels):
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/trending?lang=en
+Trending dramas
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/foryou?lang=en
+Personalized for-you feed
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/latest?lang=en
+Latest releases
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/hotrank?lang=en
+Hot ranking list
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/search?q=love
+Search FlickReels titles
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/detail?id={id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/allepisode?id={id}
+Full episode list
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/episode?id={id}&ep=1
+Single episode + signed HLS URL
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/hls?id={id}&ep=1
+Signed HLS streaming proxy
+
+GEThttps://prod-api.dramabos.live/flickreels/api/flickreels/languages
+Supported languages
+
+Stardusttv API
+Access Stardusttv short dramas: search titles, browse stellar picks and trending feeds, retrieve episode catalogs with thumbnails, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/stardusttv/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Stardusttv Dramas
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/search?q=love
+Get Stardusttv Episodes
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/episodes/{id}
+Get Stardusttv Streaming URLs
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Stardusttv endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/search?q=love
+[
+  {
+    "id": "1847",
+    "title": "Celestial Bonds",
+    "cover": "https://cdn.dramabos.live/video/stardusttv/covers/1847.jpg",
+    "episodes": 72,
+    "genre": "Sci-Fi",
+    "source": "stardusttv"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/detail/1847
+{
+  "id": "1847",
+  "title": "Celestial Bonds",
+  "cover": "https://cdn.dramabos.live/video/stardusttv/covers/1847.jpg",
+  "desc": "An astronomer discovers a message from the past in the stars...",
+  "episodes": 72,
+  "genre": "Sci-Fi",
+  "language": "en",
+  "source": "stardusttv"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/play/1847/1
+{
+  "dramaId": "1847",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/stardusttv/hls/1847/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/stardusttv/hls/1847/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/stardusttv/hls/1847/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/stardusttv/hls/1847/ep1/480p.m3u8" }
+  ],
+  "duration": 81,
+  "source": "stardusttv"
+}
+API Examples
+All Stardusttv endpoints (base /stardusttv/api/v1):
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/search?q=love
+Search Stardusttv dramas
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/stellar
+Stellar / featured picks
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/latest
+Latest releases
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/stardusttv/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Serial+ API
+Access Serial+ short dramas: search titles, browse serialized picks and weekly hot lists, retrieve episodes, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/serialplus/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Serial+ Dramas
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/search?q=love
+Get Serial+ Episodes
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/episodes/{id}
+Get Serial+ Streaming URLs
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Serial+ endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/search?q=love
+[
+  {
+    "id": "3329",
+    "title": "Wicked Inheritance",
+    "cover": "https://cdn.dramabos.live/video/serialplus/covers/3329.jpg",
+    "episodes": 96,
+    "genre": "Drama",
+    "source": "serialplus"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/detail/3329
+{
+  "id": "3329",
+  "title": "Wicked Inheritance",
+  "cover": "https://cdn.dramabos.live/video/serialplus/covers/3329.jpg",
+  "desc": "Five siblings compete for a dying patriarch's fortune...",
+  "episodes": 96,
+  "genre": "Drama",
+  "language": "en",
+  "source": "serialplus"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/play/3329/1
+{
+  "dramaId": "3329",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/serialplus/hls/3329/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/serialplus/hls/3329/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/serialplus/hls/3329/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/serialplus/hls/3329/ep1/480p.m3u8" }
+  ],
+  "duration": 76,
+  "source": "serialplus"
+}
+API Examples
+All Serial+ endpoints (base /serialplus/api/v1):
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/search?q=love
+Search Serial+ dramas
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/weekly
+Weekly hot dramas
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/featured
+Featured dramas feed
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/ongoing
+Ongoing serialized dramas
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/serialplus/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+DotDrama API
+Access DotDrama short dramas: search titles, browse dot picks and genre-based feeds, retrieve episode lists, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/dotdrama/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search DotDrama Dramas
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/search?q=love
+Get DotDrama Episodes
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/episodes/{id}
+Get DotDrama Streaming URLs
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from DotDrama endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/search?q=love
+[
+  {
+    "id": "9542",
+    "title": "Pixel Hearts",
+    "cover": "https://cdn.dramabos.live/video/dotdrama/covers/9542.jpg",
+    "episodes": 50,
+    "genre": "Fantasy",
+    "source": "dotdrama"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/detail/9542
+{
+  "id": "9542",
+  "title": "Pixel Hearts",
+  "cover": "https://cdn.dramabos.live/video/dotdrama/covers/9542.jpg",
+  "desc": "A game developer's virtual character comes to life...",
+  "episodes": 50,
+  "genre": "Fantasy",
+  "language": "en",
+  "source": "dotdrama"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/play/9542/1
+{
+  "dramaId": "9542",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/dotdrama/hls/9542/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/dotdrama/hls/9542/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/dotdrama/hls/9542/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/dotdrama/hls/9542/ep1/480p.m3u8" }
+  ],
+  "duration": 89,
+  "source": "dotdrama"
+}
+API Examples
+All DotDrama endpoints (base /dotdrama/api/v1):
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/search?q=love
+Search DotDrama dramas
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/featured
+Featured dramas feed
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/genre?type=action
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/dotdrama/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+RapidTV API
+Access RapidTV short dramas: search titles, browse rapid picks and trending feeds, retrieve episode lists, and stream via HLS through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/rapidtv/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search RapidTV Dramas
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/search?q=love
+Get RapidTV Episodes
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/episodes/{id}
+Get RapidTV Streaming URLs
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from RapidTV endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/search?q=love
+[
+  {
+    "id": "2768",
+    "title": "Flash Point",
+    "cover": "https://cdn.dramabos.live/video/rapidtv/covers/2768.jpg",
+    "episodes": 66,
+    "genre": "Action",
+    "source": "rapidtv"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/detail/2768
+{
+  "id": "2768",
+  "title": "Flash Point",
+  "cover": "https://cdn.dramabos.live/video/rapidtv/covers/2768.jpg",
+  "desc": "A firefighter falls for the arsonist she's hunting...",
+  "episodes": 66,
+  "genre": "Action",
+  "language": "en",
+  "source": "rapidtv"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/play/2768/1
+{
+  "dramaId": "2768",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/rapidtv/hls/2768/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/rapidtv/hls/2768/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/rapidtv/hls/2768/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/rapidtv/hls/2768/ep1/480p.m3u8" }
+  ],
+  "duration": 74,
+  "source": "rapidtv"
+}
+API Examples
+All RapidTV endpoints (base /rapidtv/api/v1):
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/search?q=love
+Search RapidTV dramas
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/rapid
+Rapid picks feed
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/newrelease
+New releases
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/rapidtv/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+ShortsWave API
+Access ShortsWave short dramas: search by keyword, browse wave feed and popular lists, retrieve episode catalogs, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/shortswave/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search ShortsWave Dramas
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/search?q=love
+Get ShortsWave Episodes
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/episodes/{id}
+Get ShortsWave Streaming URLs
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from ShortsWave endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/search?q=love
+[
+  {
+    "id": "4091",
+    "title": "Signal Lost",
+    "cover": "https://cdn.dramabos.live/video/shortswave/covers/4091.jpg",
+    "episodes": 78,
+    "genre": "Sci-Fi",
+    "source": "shortswave"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/detail/4091
+{
+  "id": "4091",
+  "title": "Signal Lost",
+  "cover": "https://cdn.dramabos.live/video/shortswave/covers/4091.jpg",
+  "desc": "A radio host receives distress calls from the future...",
+  "episodes": 78,
+  "genre": "Sci-Fi",
+  "language": "en",
+  "source": "shortswave"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/play/4091/1
+{
+  "dramaId": "4091",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/shortswave/hls/4091/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/shortswave/hls/4091/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/shortswave/hls/4091/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/shortswave/hls/4091/ep1/480p.m3u8" }
+  ],
+  "duration": 88,
+  "source": "shortswave"
+}
+API Examples
+All ShortsWave endpoints (base /shortswave/api/v1):
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/search?q=love
+Search ShortsWave dramas
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/wave
+Wave feed of trending content
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/popular
+Popular dramas
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/latest
+Latest releases
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/shortswave/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+DramaNova API
+Access DramaNova short dramas: search titles, browse nova picks and curated feeds, retrieve episode lists with thumbnails, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/dramanova/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search DramaNova Dramas
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/search?q=love
+Get DramaNova Episodes
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/episodes/{id}
+Get DramaNova Streaming URLs
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from DramaNova endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/search?q=love
+[
+  {
+    "id": "5684",
+    "title": "Nova's Edge",
+    "cover": "https://cdn.dramabos.live/video/dramanova/covers/5684.jpg",
+    "episodes": 82,
+    "genre": "Sci-Fi",
+    "source": "dramanova"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/detail/5684
+{
+  "id": "5684",
+  "title": "Nova's Edge",
+  "cover": "https://cdn.dramabos.live/video/dramanova/covers/5684.jpg",
+  "desc": "A scientist's experiment opens a door to a parallel world...",
+  "episodes": 82,
+  "genre": "Sci-Fi",
+  "language": "en",
+  "source": "dramanova"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/play/5684/1
+{
+  "dramaId": "5684",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/dramanova/hls/5684/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/dramanova/hls/5684/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/dramanova/hls/5684/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/dramanova/hls/5684/ep1/480p.m3u8" }
+  ],
+  "duration": 80,
+  "source": "dramanova"
+}
+API Examples
+All DramaNova endpoints (base /dramanova/api/v1):
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/search?q=love
+Search DramaNova dramas
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/nova
+Nova / curated picks
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/genre?type=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/dramanova/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+CubeTV API
+Access CubeTV short dramas: search titles, browse cube picks and hot feeds, retrieve episode catalogs, and stream via HLS through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/cubetv/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search CubeTV Dramas
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/search?q=love
+Get CubeTV Episodes
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/episodes/{id}
+Get CubeTV Streaming URLs
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from CubeTV endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/search?q=love
+[
+  {
+    "id": "8317",
+    "title": "Boxed In",
+    "cover": "https://cdn.dramabos.live/video/cubetv/covers/8317.jpg",
+    "episodes": 45,
+    "genre": "Thriller",
+    "source": "cubetv"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/detail/8317
+{
+  "id": "8317",
+  "title": "Boxed In",
+  "cover": "https://cdn.dramabos.live/video/cubetv/covers/8317.jpg",
+  "desc": "A detective trapped in an escape room discovers it's real...",
+  "episodes": 45,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "cubetv"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/play/8317/1
+{
+  "dramaId": "8317",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/cubetv/hls/8317/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/cubetv/hls/8317/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/cubetv/hls/8317/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/cubetv/hls/8317/ep1/480p.m3u8" }
+  ],
+  "duration": 94,
+  "source": "cubetv"
+}
+API Examples
+All CubeTV endpoints (base /cubetv/api/v1):
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/search?q=love
+Search CubeTV dramas
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/featured
+Featured dramas
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/ranking
+Ranked dramas
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/cubetv/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+ReelBuzz API
+Access ReelBuzz short dramas: search titles, browse buzz feed and viral picks, retrieve episodes, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/reelbuzz/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search ReelBuzz Dramas
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/search?q=love
+Get ReelBuzz Episodes
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/episodes/{id}
+Get ReelBuzz Streaming URLs
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from ReelBuzz endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/search?q=love
+[
+  {
+    "id": "7245",
+    "title": "Viral Vengeance",
+    "cover": "https://cdn.dramabos.live/video/reelbuzz/covers/7245.jpg",
+    "episodes": 70,
+    "genre": "Drama",
+    "source": "reelbuzz"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/detail/7245
+{
+  "id": "7245",
+  "title": "Viral Vengeance",
+  "cover": "https://cdn.dramabos.live/video/reelbuzz/covers/7245.jpg",
+  "desc": "A leaked video ruins a teacher's life and she fights back...",
+  "episodes": 70,
+  "genre": "Drama",
+  "language": "en",
+  "source": "reelbuzz"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/play/7245/1
+{
+  "dramaId": "7245",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/reelbuzz/hls/7245/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/reelbuzz/hls/7245/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/reelbuzz/hls/7245/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/reelbuzz/hls/7245/ep1/480p.m3u8" }
+  ],
+  "duration": 86,
+  "source": "reelbuzz"
+}
+API Examples
+All ReelBuzz endpoints (base /reelbuzz/api/v1):
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/search?q=love
+Search ReelBuzz dramas
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/buzz
+Buzzing / viral dramas
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/popular
+Popular dramas
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/reelbuzz/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+FlareFlow API
+Access FlareFlow short dramas: search titles, browse flare picks and trending feeds, retrieve episode lists, and stream via HLS through DramaBos CDN proxy.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/flareflow/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search FlareFlow Dramas
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/search?q=love
+Get FlareFlow Episodes
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/episodes/{id}
+Get FlareFlow Streaming URLs
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from FlareFlow endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/search?q=love
+[
+  {
+    "id": "1536",
+    "title": "Burning Bridges",
+    "cover": "https://cdn.dramabos.live/video/flareflow/covers/1536.jpg",
+    "episodes": 58,
+    "genre": "Thriller",
+    "source": "flareflow"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/detail/1536
+{
+  "id": "1536",
+  "title": "Burning Bridges",
+  "cover": "https://cdn.dramabos.live/video/flareflow/covers/1536.jpg",
+  "desc": "A journalist exposes corruption and becomes the target...",
+  "episodes": 58,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "flareflow"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/play/1536/1
+{
+  "dramaId": "1536",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/flareflow/hls/1536/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/flareflow/hls/1536/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/flareflow/hls/1536/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/flareflow/hls/1536/ep1/480p.m3u8" }
+  ],
+  "duration": 91,
+  "source": "flareflow"
+}
+API Examples
+All FlareFlow endpoints (base /flareflow/api/v1):
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/search?q=love
+Search FlareFlow dramas
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/flare
+Flare / highlighted picks
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/latest
+Latest releases
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/flareflow/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+MoboReels API
+Access MoboReels mobile-optimized short dramas: search titles, browse mobile picks and hot feeds, retrieve episodes, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/moboreels/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search MoboReels Dramas
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/search?q=love
+Get MoboReels Episodes
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/episodes/{id}
+Get MoboReels Streaming URLs
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from MoboReels endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/search?q=love
+[
+  {
+    "id": "6892",
+    "title": "Swipe Right for Danger",
+    "cover": "https://cdn.dramabos.live/video/moboreels/covers/6892.jpg",
+    "episodes": 52,
+    "genre": "Thriller",
+    "source": "moboreels"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/detail/6892
+{
+  "id": "6892",
+  "title": "Swipe Right for Danger",
+  "cover": "https://cdn.dramabos.live/video/moboreels/covers/6892.jpg",
+  "desc": "A dating app match leads to a deadly obsession...",
+  "episodes": 52,
+  "genre": "Thriller",
+  "language": "en",
+  "source": "moboreels"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/play/6892/1
+{
+  "dramaId": "6892",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/moboreels/hls/6892/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/moboreels/hls/6892/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/moboreels/hls/6892/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/moboreels/hls/6892/ep1/480p.m3u8" }
+  ],
+  "duration": 79,
+  "source": "moboreels"
+}
+API Examples
+All MoboReels endpoints (base /moboreels/api/v1):
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/search?q=love
+Search MoboReels dramas
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/featured
+Featured dramas
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/category?type=romance
+Browse by category
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/moboreels/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+HappyShort API
+Access HappyShort feel-good short dramas: search titles, browse happy picks and trending feeds, retrieve episodes with thumbnails, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/happyshort/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search HappyShort Dramas
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/search?q=love
+Get HappyShort Episodes
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/episodes/{id}
+Get HappyShort Streaming URLs
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from HappyShort endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/search?q=love
+[
+  {
+    "id": "3714",
+    "title": "Sunshine After Storm",
+    "cover": "https://cdn.dramabos.live/video/happyshort/covers/3714.jpg",
+    "episodes": 60,
+    "genre": "Romance",
+    "source": "happyshort"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/detail/3714
+{
+  "id": "3714",
+  "title": "Sunshine After Storm",
+  "cover": "https://cdn.dramabos.live/video/happyshort/covers/3714.jpg",
+  "desc": "A single dad finds love at his daughter's school...",
+  "episodes": 60,
+  "genre": "Romance",
+  "language": "en",
+  "source": "happyshort"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/play/3714/1
+{
+  "dramaId": "3714",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/happyshort/hls/3714/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/happyshort/hls/3714/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/happyshort/hls/3714/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/happyshort/hls/3714/ep1/480p.m3u8" }
+  ],
+  "duration": 83,
+  "source": "happyshort"
+}
+API Examples
+All HappyShort endpoints (base /happyshort/api/v1):
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/search?q=love
+Search HappyShort dramas
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/happy
+Happy / feel-good picks
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/completed
+Completed dramas
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/happyshort/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Reelife API
+Access Reelife real-life inspired short dramas: search titles, browse reelife picks and daily feeds, retrieve episodes, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/reelife/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Reelife Dramas
+GEThttps://prod-api.dramabos.live/reelife/api/v1/search?q=love
+Get Reelife Episodes
+GEThttps://prod-api.dramabos.live/reelife/api/v1/episodes/{id}
+Get Reelife Streaming URLs
+GEThttps://prod-api.dramabos.live/reelife/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Reelife endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/reelife/api/v1/search?q=love
+[
+  {
+    "id": "5027",
+    "title": "Second Chances",
+    "cover": "https://cdn.dramabos.live/video/reelife/covers/5027.jpg",
+    "episodes": 74,
+    "genre": "Drama",
+    "source": "reelife"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/reelife/api/v1/detail/5027
+{
+  "id": "5027",
+  "title": "Second Chances",
+  "cover": "https://cdn.dramabos.live/video/reelife/covers/5027.jpg",
+  "desc": "A woman relives the worst day of her life to fix her mistakes...",
+  "episodes": 74,
+  "genre": "Drama",
+  "language": "en",
+  "source": "reelife"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/reelife/api/v1/play/5027/1
+{
+  "dramaId": "5027",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/reelife/hls/5027/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/reelife/hls/5027/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/reelife/hls/5027/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/reelife/hls/5027/ep1/480p.m3u8" }
+  ],
+  "duration": 87,
+  "source": "reelife"
+}
+API Examples
+All Reelife endpoints (base /reelife/api/v1):
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/search?q=love
+Search Reelife dramas
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/daily
+Daily picks feed
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/popular
+Popular dramas
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/latest
+Latest releases
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/reelife/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+PineDrama API
+Access PineDrama short dramas: search titles, browse pine picks and hot lists, retrieve episodes with cover art, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/pinedrama/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search PineDrama Dramas
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/search?q=love
+Get PineDrama Episodes
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/episodes/{id}
+Get PineDrama Streaming URLs
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from PineDrama endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/search?q=love
+[
+  {
+    "id": "9361",
+    "title": "Whispers in the Pines",
+    "cover": "https://cdn.dramabos.live/video/pinedrama/covers/9361.jpg",
+    "episodes": 56,
+    "genre": "Horror",
+    "source": "pinedrama"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/detail/9361
+{
+  "id": "9361",
+  "title": "Whispers in the Pines",
+  "cover": "https://cdn.dramabos.live/video/pinedrama/covers/9361.jpg",
+  "desc": "A cabin retreat reveals dark secrets buried in the woods...",
+  "episodes": 56,
+  "genre": "Horror",
+  "language": "en",
+  "source": "pinedrama"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/play/9361/1
+{
+  "dramaId": "9361",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/pinedrama/hls/9361/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/pinedrama/hls/9361/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/pinedrama/hls/9361/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/pinedrama/hls/9361/ep1/480p.m3u8" }
+  ],
+  "duration": 92,
+  "source": "pinedrama"
+}
+API Examples
+All PineDrama endpoints (base /pinedrama/api/v1):
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/search?q=love
+Search PineDrama dramas
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/featured
+Featured dramas
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/genre?type=romance
+Browse by genre
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/pinedrama/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+FlexTV API
+Access FlexTV short dramas: search titles, browse flex picks and trending feeds, retrieve episodes, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/flextv/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search FlexTV Dramas
+GEThttps://prod-api.dramabos.live/flextv/api/v1/search?q=love
+Get FlexTV Episodes
+GEThttps://prod-api.dramabos.live/flextv/api/v1/episodes/{id}
+Get FlexTV Streaming URLs
+GEThttps://prod-api.dramabos.live/flextv/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from FlexTV endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/flextv/api/v1/search?q=love
+[
+  {
+    "id": "4653",
+    "title": "Bend or Break",
+    "cover": "https://cdn.dramabos.live/video/flextv/covers/4653.jpg",
+    "episodes": 68,
+    "genre": "Sports",
+    "source": "flextv"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/flextv/api/v1/detail/4653
+{
+  "id": "4653",
+  "title": "Bend or Break",
+  "cover": "https://cdn.dramabos.live/video/flextv/covers/4653.jpg",
+  "desc": "A gymnast faces her rival and her own demons...",
+  "episodes": 68,
+  "genre": "Sports",
+  "language": "en",
+  "source": "flextv"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/flextv/api/v1/play/4653/1
+{
+  "dramaId": "4653",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/flextv/hls/4653/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/flextv/hls/4653/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/flextv/hls/4653/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/flextv/hls/4653/ep1/480p.m3u8" }
+  ],
+  "duration": 78,
+  "source": "flextv"
+}
+API Examples
+All FlexTV endpoints (base /flextv/api/v1):
+
+GEThttps://prod-api.dramabos.live/flextv/api/v1/search?q=love
+Search FlexTV dramas
+
+GEThttps://prod-api.dramabos.live/flextv/api/v1/trending
+Trending dramas feed
+
+GEThttps://prod-api.dramabos.live/flextv/api/v1/featured
+Featured dramas
+
+GEThttps://prod-api.dramabos.live/flextv/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/flextv/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/flextv/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
+
+Reelala API
+Access Reelala short dramas: search titles, browse ala picks and hot feeds, retrieve episodes, and stream via HLS through DramaBos CDN.
+
+Authentication required
+Every request must include your API key as a Bearer token in theAuthorization header. Requests that are missing a token, or use an invalid, inactive, or expired one, are rejected with401 Unauthorized. Get your key from the dashboard.
+
+curl -X GET "https://prod-api.dramabos.live/reelala/api/v1/search?q=love" \
+  -A "Mozilla/5.0" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+Search Reelala Dramas
+GEThttps://prod-api.dramabos.live/reelala/api/v1/search?q=love
+Get Reelala Episodes
+GEThttps://prod-api.dramabos.live/reelala/api/v1/episodes/{id}
+Get Reelala Streaming URLs
+GEThttps://prod-api.dramabos.live/reelala/api/v1/play/{id}/{ep}
+Example API Responses
+Sample JSON responses from Reelala endpoints via DramaBos API. All media assets are served through cdn.dramabos.live.
+
+Search Response
+GEThttps://prod-api.dramabos.live/reelala/api/v1/search?q=love
+[
+  {
+    "id": "2185",
+    "title": "Midnight Melody",
+    "cover": "https://cdn.dramabos.live/video/reelala/covers/2185.jpg",
+    "episodes": 63,
+    "genre": "Mystery",
+    "source": "reelala"
+  }
+]
+Drama Detail Response
+GEThttps://prod-api.dramabos.live/reelala/api/v1/detail/2185
+{
+  "id": "2185",
+  "title": "Midnight Melody",
+  "cover": "https://cdn.dramabos.live/video/reelala/covers/2185.jpg",
+  "desc": "A mysterious pianist plays only at midnight in a haunted theater...",
+  "episodes": 63,
+  "genre": "Mystery",
+  "language": "en",
+  "source": "reelala"
+}
+Streaming Response
+GEThttps://prod-api.dramabos.live/reelala/api/v1/play/2185/1
+{
+  "dramaId": "2185",
+  "episode": 1,
+  "hlsUrl": "https://cdn.dramabos.live/video/reelala/hls/2185/ep1/master.m3u8",
+  "quality": [
+    { "definition": "1080p", "url": "https://cdn.dramabos.live/video/reelala/hls/2185/ep1/1080p.m3u8" },
+    { "definition": "720p", "url": "https://cdn.dramabos.live/video/reelala/hls/2185/ep1/720p.m3u8" },
+    { "definition": "480p", "url": "https://cdn.dramabos.live/video/reelala/hls/2185/ep1/480p.m3u8" }
+  ],
+  "duration": 85,
+  "source": "reelala"
+}
+API Examples
+All Reelala endpoints (base /reelala/api/v1):
+
+GEThttps://prod-api.dramabos.live/reelala/api/v1/search?q=love
+Search Reelala dramas
+
+GEThttps://prod-api.dramabos.live/reelala/api/v1/hot
+Hot dramas feed
+
+GEThttps://prod-api.dramabos.live/reelala/api/v1/trending
+Trending dramas
+
+GEThttps://prod-api.dramabos.live/reelala/api/v1/detail/{id}
+Drama metadata by id
+
+GEThttps://prod-api.dramabos.live/reelala/api/v1/episodes/{id}
+Episode list for a drama
+
+GEThttps://prod-api.dramabos.live/reelala/api/v1/play/{id}/{ep}
+Resolve HLS streaming URL
