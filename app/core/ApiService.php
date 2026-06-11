@@ -225,4 +225,32 @@ class ApiService {
             'modified' => filemtime($cacheFile)
         );
     }
+    
+    /**
+     * Search drama by keyword from DramaBos API
+     * Endpoint: /{provider}/api/v1/search?keyword={query}
+     * @param string $keyword Search keyword
+     * @param string $provider Provider slug (default: dramabox)
+     * @param int $cacheTime Cache duration in seconds (default 1 hour)
+     * @return array|null List of dramas matching the keyword
+     */
+    public function searchDrama($keyword, $provider = 'dramabox', $cacheTime = 3600) {
+        // Encode keyword for URL
+        $encodedKeyword = urlencode($keyword);
+        $endpoint = 'search?keyword=' . $encodedKeyword;
+        return $this->request($provider, $endpoint, $cacheTime);
+    }
+    
+    /**
+     * Get drama list by genre/category from DramaBos API
+     * Endpoint: /{provider}/api/v1/category/{genre_id}
+     * @param string|int $genreId Genre/Category ID
+     * @param string $provider Provider slug (default: dramabox)
+     * @param int $cacheTime Cache duration in seconds (default 6 hours)
+     * @return array|null List of dramas in the genre
+     */
+    public function getDramaByGenre($genreId, $provider = 'dramabox', $cacheTime = 21600) {
+        $endpoint = 'category/' . urlencode($genreId);
+        return $this->request($provider, $endpoint, $cacheTime);
+    }
 }
