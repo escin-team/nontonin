@@ -17,6 +17,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CRITICAL: Prevent hotlink protection by blocking referer header -->
+    <meta name="referrer" content="no-referrer">
     <title><?php echo isset($page_title) ? e($page_title) : APP_NAME; ?></title>
     
     <!-- Bootstrap 4 CSS -->

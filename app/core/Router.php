@@ -1,8 +1,14 @@
 <?php
 /**
- * Simple Router - PHP 5.6 - 8.3 Compatible
+ * Router - PHP 5.6 - 8.3 Compatible
  * FIXED: Added resolveCallback() to handle "Controller@method" string format
  * This prevents Fatal Error on call_user_func("AuthController@login") in PHP 8.3
+ * 
+ * Features:
+ * - Auto-load controller files
+ * - Support parameterized routes with {param} syntax
+ * - 404 handler with BASE_URL check
+ * - Anti double-slash URL handling
  */
 
 class Router {
@@ -44,6 +50,12 @@ class Router {
             $controllerName = $parts[0];
             $methodName = $parts[1];
             
+            // Auto-load controller file if exists
+            $controllerFile = __DIR__ . '/../controllers/' . $controllerName . '.php';
+            if (file_exists($controllerFile)) {
+                require_once $controllerFile;
+            }
+            
             // Instantiate controller and return callable array
             $controller = new $controllerName();
             return array($controller, $methodName);
@@ -67,7 +79,7 @@ class Router {
             $uri = substr($uri, strlen($basePath));
         }
         
-        // Remove trailing slash - CRITICAL for ByetHost
+        // Remove trailing slash - CRITICAL for ByetHost (prevents double-slash 404)
         $uri = rtrim($uri, '/');
         if (empty($uri)) {
             $uri = '/';
@@ -104,10 +116,13 @@ class Router {
         
         // 404 Not Found
         http_response_code(404);
-        echo '<div style="text-align:center;padding:50px;">';
+        echo '<!DOCTYPE html>';
+        echo '<html><head><meta charset="UTF-8"><title>404 - Page Not Found</title>';
+        echo '<style>body{background:#121212;color:#e0e0e0;font-family:sans-serif;text-align:center;padding:50px;} h1{color:#e94560;} a{color:#e94560;}</style>';
+        echo '</head><body>';
         echo '<h1>404 - Page Not Found</h1>';
         echo '<p>The page you are looking for does not exist.</p>';
-        echo '<a href="' . BASE_URL . '">Go Home</a>';
-        echo '</div>';
+        echo '<p><a href="' . url('home') . '">Go Home</a></p>';
+        echo '</body></html>';
     }
 }
