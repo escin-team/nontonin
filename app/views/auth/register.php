@@ -10,7 +10,7 @@
                 </div>
                 <?php endif; ?>
                 
-                <form method="POST" action="<?php echo BASE_URL; ?>/auth/register">
+                <form method="POST" action="<?php echo url('auth/register'); ?>">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     
                     <div class="form-group">
@@ -48,7 +48,7 @@
                 
                 <p class="text-center mb-0">
                     Already have an account? 
-                    <a href="<?php echo BASE_URL; ?>/auth/login" class="text-primary">Login here</a>
+                    <a href="<?php echo url('auth/login'); ?>" class="text-primary">Login here</a>
                 </p>
             </div>
         </div>

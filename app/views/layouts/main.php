@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($page_title) ? $page_title : APP_NAME; ?></title>
+    <!-- CRITICAL: Prevent hotlink protection by blocking referer header -->
+    <meta name="referrer" content="no-referrer">
+    <title><?php echo isset($page_title) ? e($page_title) : APP_NAME; ?></title>
     
     <!-- Bootstrap 4 CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo url('assets/css/style.css'); ?>">
     
     <style>
         body {
@@ -71,7 +73,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="<?php echo BASE_URL; ?>">
+            <a class="navbar-brand" href="<?php echo url(''); ?>">
                 <i class="fas fa-play-circle"></i> <?php echo APP_NAME; ?>
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
@@ -80,37 +82,37 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/home">Home</a>
+                        <a class="nav-link" href="<?php echo url('home'); ?>">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/drama/china">Drama China</a>
+                        <a class="nav-link" href="<?php echo url('drama/china'); ?>">Drama China</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/anime">Anime</a>
+                        <a class="nav-link" href="<?php echo url('anime'); ?>">Anime</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/movies">Movies</a>
+                        <a class="nav-link" href="<?php echo url('movies'); ?>">Movies</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
-                            <i class="fas fa-user"></i> <?php echo htmlspecialchars($_SESSION['username']); ?>
+                            <i class="fas fa-user"></i> <?php echo e(isset($_SESSION['username']) ? $_SESSION['username'] : 'User'); ?>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="<?php echo BASE_URL; ?>/profile">Profile</a>
-                            <a class="dropdown-item" href="<?php echo BASE_URL; ?>/watchlist">Watchlist</a>
+                            <a class="dropdown-item" href="<?php echo url('profile'); ?>">Profile</a>
+                            <a class="dropdown-item" href="<?php echo url('watchlist'); ?>">Watchlist</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="<?php echo BASE_URL; ?>/auth/logout">Logout</a>
+                            <a class="dropdown-item" href="<?php echo url('auth/logout'); ?>">Logout</a>
                         </div>
                     </li>
                     <?php else: ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/auth/login">Login</a>
+                        <a class="nav-link" href="<?php echo url('auth/login'); ?>">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-primary text-white ml-2" href="<?php echo BASE_URL; ?>/auth/register">Register</a>
+                        <a class="nav-link btn btn-primary text-white ml-2" href="<?php echo url('auth/register'); ?>">Register</a>
                     </li>
                     <?php endif; ?>
                 </ul>
@@ -136,6 +138,6 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Custom JS -->
-    <script src="<?php echo BASE_URL; ?>/assets/js/main.js"></script>
+    <script src="<?php echo url('assets/js/main.js'); ?>"></script>
 </body>
 </html>

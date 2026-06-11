@@ -65,7 +65,6 @@ $router->get('/home', 'HomeController@index');
 
 // Drama Routes - Updated for DramaBos API with provider parameter
 // Route: /drama/{provider}/{drama_id}
-$router->get('/drama/{provider}/{id}', 'HomeController@detail');
 $router->get('/drama/{provider}/{dramaId}', 'DramaController@detail');
 
 // Watch/Streaming Routes

@@ -1,1 +1,28 @@
-(empty)
+# Environment
+.env
+.env.local
+.env.*
+
+# Dependencies
+vendor/
+
+# Logs
+*.log
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP specific
+*.php~
+*.php.bak
+*.php.swp
+
+# Cache
+.cache/
+tmp/
+temp/

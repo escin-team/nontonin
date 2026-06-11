@@ -41,7 +41,7 @@ class DramaController extends Controller {
         
         try {
             // Get drama details from API (cache 6 hours)
-            $dramaDetails = $this->apiService->getDramaDetails($provider, $dramaId, 21600);
+            $dramaDetails = $this->apiService->getDramaDetail($provider, $dramaId, 21600);
             
             // Get episodes list from API (cache 6 hours)
             $episodesData = $this->apiService->getEpisodes($provider, $dramaId, 21600);
