@@ -84,5 +84,13 @@ $router->get('/', function() {
     }
 });
 
+// Search Routes
+$router->get('/search', 'SearchController@index');
+$router->get('/search/results', 'SearchController@results');
+
+// Genre Routes
+$router->get('/genre', 'GenreController@index');
+$router->get('/genre/{id}', 'GenreController@show');
+
 // Dispatch routes
 $router->dispatch();
