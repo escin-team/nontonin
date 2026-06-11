@@ -4,38 +4,38 @@
  * PHP 5.5/5.6 Compatible (AeonFree Hosting)
  * 
  * Rules Applied:
- * - No null coalescing (??)
- * - No arrow functions (fn())
+ * - No null coalescing (??) - using isset() instead
+ * - No arrow functions (fn()) - using traditional anonymous functions
  * - No scalar type declarations
- * - No random_bytes() - using openssl_random_pseudo_bytes()
- * - No anonymous classes
- * - Manual autoloader with spl_autoload_register
+ * - No short array syntax [] - using array() instead
+ * - Using __DIR__ for all file paths
+ * - SSL verification bypassed for cURL
  */
 
-// Define base path
-define('BASE_PATH', dirname(__FILE__));
+// Define base path using __DIR__ (PHP 5.3+)
+define('BASE_PATH', __DIR__);
 
 // Load configuration
-require_once BASE_PATH . '/config/config.php';
+require_once __DIR__ . '/config/config.php';
 
 // Register manual autoloader for PHP 5.5/5.6
 spl_autoload_register(function($className) {
-    // Core classes
-    $corePath = BASE_PATH . '/app/core/' . $className . '.php';
+    // Core classes in /app/core/
+    $corePath = __DIR__ . '/app/core/' . $className . '.php';
     if (file_exists($corePath)) {
         require_once $corePath;
         return;
     }
     
-    // Controllers
-    $controllerPath = BASE_PATH . '/app/controllers/' . $className . '.php';
+    // Controllers in /app/controllers/
+    $controllerPath = __DIR__ . '/app/controllers/' . $className . '.php';
     if (file_exists($controllerPath)) {
         require_once $controllerPath;
         return;
     }
     
-    // Models
-    $modelPath = BASE_PATH . '/app/models/' . $className . '.php';
+    // Models in /app/models/
+    $modelPath = __DIR__ . '/app/models/' . $className . '.php';
     if (file_exists($modelPath)) {
         require_once $modelPath;
         return;
