@@ -8,19 +8,13 @@
  */
 
 require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../models/ShowModel.php';
-require_once __DIR__ . '/../models/EpisodeModel.php';
 require_once __DIR__ . '/../core/ApiService.php';
 
 class DramaController extends Controller {
-    private $showModel;
-    private $episodeModel;
     private $apiService;
     
     public function __construct() {
         parent::__construct();
-        $this->showModel = new ShowModel();
-        $this->episodeModel = new EpisodeModel();
         $this->apiService = new ApiService();
         
         if (session_status() === PHP_SESSION_NONE) {
@@ -35,58 +29,67 @@ class DramaController extends Controller {
      * @param string $dramaId Drama ID from API
      */
     public function detail($provider, $dramaId) {
-        $this->requireLogin();
-        
-        // Validate provider
-        $validProviders = getDramaBosProviders();
+        // Validate provider against supported list
+        $validProviders = array('dramabox', 'shortmax', 'reelshort', 'starshort', 'dramabite', 'freereels', 'fundrama', 'microdrama', 'vigloo', 'bilitv');
         if (!in_array($provider, $validProviders)) {
             redirect('home');
         }
         
-        // Get drama details from API (cache 6 hours)
-        $dramaDetails = $this->apiService->getDramaDetails($provider, $dramaId, 21600);
+        $dramaDetails = array();
+        $episodes = array();
+        $error = '';
         
-        // Get episodes list from API (cache 6 hours)
-        $episodesData = $this->apiService->getEpisodes($provider, $dramaId, 21600);
+        try {
+            // Get drama details from API (cache 6 hours)
+            $dramaDetails = $this->apiService->getDramaDetails($provider, $dramaId, 21600);
+            
+            // Get episodes list from API (cache 6 hours)
+            $episodesData = $this->apiService->getEpisodes($provider, $dramaId, 21600);
+            
+            // Process episodes data - handle different response formats
+            if (!empty($episodesData)) {
+                if (isset($episodesData['data']) && is_array($episodesData['data'])) {
+                    $episodes = $episodesData['data'];
+                } elseif (isset($episodesData['list']) && is_array($episodesData['list'])) {
+                    $episodes = $episodesData['list'];
+                } elseif (isset($episodesData['episodes']) && is_array($episodesData['episodes'])) {
+                    $episodes = $episodesData['episodes'];
+                } elseif (is_array($episodesData)) {
+                    $episodes = $episodesData;
+                }
+            }
+        } catch (Exception $e) {
+            error_log('DramaController Error: ' . $e->getMessage());
+            $error = 'Failed to load drama details. Please try again later.';
+        }
         
+        // Handle empty/error response
         if (empty($dramaDetails)) {
-            http_response_code(404);
-            echo '<div style="text-align:center;padding:50px;">';
-            echo '<h1>Drama Not Found</h1>';
-            echo '<p>The drama you are looking for does not exist.</p>';
-            echo '<a href="' . url('home') . '">Go Home</a>';
-            echo '</div>';
+            // Show error page
+            echo '<!DOCTYPE html>';
+            echo '<html><head><title>Drama Not Found</title>';
+            echo '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">';
+            echo '<style>body{background:#121212;color:#e0e0e0;} .error-box{text-align:center;padding:50px;}</style>';
+            echo '</head><body><div class="error-box">';
+            echo '<h1><i class="fas fa-exclamation-triangle"></i> Drama Not Found</h1>';
+            echo '<p>The drama you are looking for does not exist or could not be loaded.</p>';
+            echo '<a href="' . url('home') . '" class="btn btn-primary">Go Home</a>';
+            echo '</div></body></html>';
             return;
         }
         
-        // Process episodes data
-        $episodes = array();
-        if (!empty($episodesData)) {
-            if (isset($episodesData['data']) && is_array($episodesData['data'])) {
-                $episodes = $episodesData['data'];
-            } elseif (isset($episodesData['episodes']) && is_array($episodesData['episodes'])) {
-                $episodes = $episodesData['episodes'];
-            }
-        }
-        
         // Add provider info to drama details
-        $dramaDetails['source_provider'] = $provider;
+        $dramaDetails['provider'] = $provider;
         $dramaDetails['drama_id'] = $dramaId;
         
-        // Save to database if model method exists
-        if (method_exists($this->showModel, 'upsertFromApi')) {
-            $category = $this->getCategoryBySlug('drama-china');
-            $categoryId = $category ? $category['id'] : 1;
-            $localId = $this->showModel->upsertFromApi($categoryId, $dramaDetails);
-            $dramaDetails['local_id'] = $localId;
-        }
-        
-        $this->view('home/detail', array(
+        // Pass data to view
+        $this->view('drama/detail', array(
             'drama' => $dramaDetails,
             'provider' => $provider,
             'drama_id' => $dramaId,
             'episodes' => $episodes,
-            'page_title' => (isset($dramaDetails['title']) ? e($dramaDetails['title']) : 'Detail') . ' - ' . APP_NAME
+            'error' => $error,
+            'page_title' => (isset($dramaDetails['title']) ? e($dramaDetails['title']) : 'Drama Detail') . ' - ' . APP_NAME
         ));
     }
     
@@ -97,122 +100,67 @@ class DramaController extends Controller {
      * @param string $episodeId Episode ID from API
      */
     public function watch($provider, $episodeId) {
-        $this->requireLogin();
-        
         // Validate provider
-        $validProviders = getDramaBosProviders();
+        $validProviders = array('dramabox', 'shortmax', 'reelshort', 'starshort', 'dramabite', 'freereels', 'fundrama', 'microdrama', 'vigloo', 'bilitv');
         if (!in_array($provider, $validProviders)) {
             redirect('home');
         }
         
-        // Get streaming URL from API (short cache for streams - 15 minutes)
-        $streamData = $this->apiService->getStreamUrl($provider, $episodeId, 900);
-        
         $streamUrl = '';
-        $streamType = 'hls'; // Default to HLS for .m3u8
+        $streamType = 'hls';
+        $error = '';
+        $episodeInfo = array();
         
-        if (!empty($streamData)) {
-            // Extract m3u8 URL from various response formats
-            if (isset($streamData['url'])) {
-                $streamUrl = $streamData['url'];
-            } elseif (isset($streamData['play_url'])) {
-                $streamUrl = $streamData['play_url'];
-            } elseif (isset($streamData['stream_url'])) {
-                $streamUrl = $streamData['stream_url'];
-            } elseif (isset($streamData['data']['url'])) {
-                $streamUrl = $streamData['data']['url'];
-            } elseif (isset($streamData['data']['play_url'])) {
-                $streamUrl = $streamData['data']['play_url'];
-            }
+        try {
+            // Get streaming URL from API (short cache for streams - 15 minutes)
+            $streamData = $this->apiService->getStreamUrl($provider, $episodeId, 900);
             
-            // Determine stream type based on URL
-            if (!empty($streamUrl) && strpos($streamUrl, '.m3u8') !== false) {
-                $streamType = 'hls';
-            } elseif (!empty($streamUrl) && strpos($streamUrl, '.mp4') !== false) {
-                $streamType = 'mp4';
+            if (!empty($streamData)) {
+                // Extract m3u8 URL from various response formats
+                if (isset($streamData['url'])) {
+                    $streamUrl = $streamData['url'];
+                } elseif (isset($streamData['play_url'])) {
+                    $streamUrl = $streamData['play_url'];
+                } elseif (isset($streamData['stream_url'])) {
+                    $streamUrl = $streamData['stream_url'];
+                } elseif (isset($streamData['data']['url'])) {
+                    $streamUrl = $streamData['data']['url'];
+                } elseif (isset($streamData['data']['play_url'])) {
+                    $streamUrl = $streamData['data']['play_url'];
+                } elseif (isset($streamData['video_url'])) {
+                    $streamUrl = $streamData['video_url'];
+                }
+                
+                // Determine stream type based on URL
+                if (!empty($streamUrl)) {
+                    if (strpos($streamUrl, '.m3u8') !== false) {
+                        $streamType = 'hls';
+                    } elseif (strpos($streamUrl, '.mp4') !== false) {
+                        $streamType = 'mp4';
+                    }
+                }
             }
+        } catch (Exception $e) {
+            error_log('DramaController Watch Error: ' . $e->getMessage());
+            $error = 'Failed to load stream. Please try again later.';
         }
         
         // Prepare episode info for display
-        $currentEpisode = array(
-            'episode_number' => isset($episodeId) ? $episodeId : '1',
-            'title' => '',
-            'synopsis' => ''
+        $episodeInfo = array(
+            'episode_id' => $episodeId,
+            'title' => 'Episode ' . e($episodeId),
+            'provider' => $provider
         );
         
-        // Get show info (if available from cache or previous request)
-        $show = array(
-            'slug' => $provider . '-' . $episodeId,
-            'title' => 'Watching Episode',
-            'id' => 0
-        );
-        
-        // Navigation placeholders (can be enhanced with actual episode list)
-        $nextEpisode = null;
-        $prevEpisode = null;
-        $allEpisodes = array();
-        
+        // Pass data to view
         $this->view('player/watch', array(
-            'show' => $show,
-            'streamUrl' => $streamUrl,
+            'videoUrl' => $streamUrl,
             'streamType' => $streamType,
             'episodeId' => $episodeId,
             'provider' => $provider,
-            'currentEpisode' => $currentEpisode,
-            'nextEpisode' => $nextEpisode,
-            'prevEpisode' => $prevEpisode,
-            'allEpisodes' => $allEpisodes,
+            'episodeInfo' => $episodeInfo,
+            'error' => $error,
             'page_title' => 'Watch Episode ' . e($episodeId) . ' - ' . APP_NAME
         ));
-    }
-    
-    /**
-     * Update watch progress (AJAX endpoint)
-     */
-    public function updateProgress() {
-        if (!isset($_SESSION['user_id'])) {
-            $this->json(array('success' => false, 'message' => 'Not logged in'));
-        }
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->json(array('success' => false, 'message' => 'Invalid method'));
-        }
-        
-        $showId = isset($_POST['show_id']) ? intval($_POST['show_id']) : 0;
-        $episodeId = isset($_POST['episode_id']) ? $_POST['episode_id'] : '';
-        $progress = isset($_POST['progress']) ? intval($_POST['progress']) : 0;
-        
-        if (!$showId || !$episodeId) {
-            $this->json(array('success' => false, 'message' => 'Invalid parameters'));
-        }
-        
-        if (method_exists($this->episodeModel, 'saveWatchProgress')) {
-            $result = $this->episodeModel->saveWatchProgress(
-                $_SESSION['user_id'],
-                $showId,
-                $episodeId,
-                $progress
-            );
-            $this->json(array('success' => $result));
-        } else {
-            $this->json(array('success' => true, 'message' => 'Progress saved (mock)'));
-        }
-    }
-    
-    /**
-     * Get category by slug
-     * @param string $slug
-     * @return array|null
-     */
-    private function getCategoryBySlug($slug) {
-        try {
-            $stmt = $this->db->prepare('SELECT * FROM categories WHERE slug = ?');
-            $stmt->execute(array($slug));
-            $category = $stmt->fetch();
-            return $category ?: null;
-        } catch (Exception $e) {
-            error_log('Error getting category: ' . $e->getMessage());
-            return null;
-        }
     }
 }
