@@ -7,9 +7,28 @@
  * It fetches data from multiple providers and saves to global_feed.json
  * 
  * Usage: 
- *   - Browser: https://yourdomain.com/cron_aggregator.php
- *   - Cron: 0 */6 * * * curl https://yourdomain.com/cron_aggregator.php > /dev/null 2>&1
+ *   - Browser: https://yourdomain.com/cron_aggregator.php?secret_key=YOUR_SECRET_KEY
+ *   - Cron: 0 */6 * * * curl "https://yourdomain.com/cron_aggregator.php?secret_key=YOUR_SECRET_KEY" > /dev/null 2>&1
+ * 
+ * SECURITY: Replace YOUR_SECRET_KEY below with a strong random string!
  */
+
+// Define secret key for cron access protection
+define('CRON_SECRET_KEY', 'CHANGE_THIS_TO_A_STRONG_RANDOM_STRING');
+
+// Validate secret key if provided via GET parameter
+if (isset($_GET['secret_key'])) {
+    if ($_GET['secret_key'] !== CRON_SECRET_KEY) {
+        header('HTTP/1.0 403 Forbidden');
+        die('Access Denied: Invalid secret key');
+    }
+} else {
+    // If no secret key provided, check if running from CLI
+    if (php_sapi_name() !== 'cli') {
+        header('HTTP/1.0 403 Forbidden');
+        die('Access Denied: Secret key required');
+    }
+}
 
 // Load configuration
 require_once __DIR__ . '/config/config.php';
@@ -19,15 +38,8 @@ require_once __DIR__ . '/app/core/ApiService.php';
 ini_set('max_execution_time', 300); // 5 minutes
 set_time_limit(300);
 
-// Disable output buffering for progress display
-if (function_exists('apache_setenv')) {
-    @apache_setenv('no-gzip', '1');
-}
-@ini_set('zlib.output_compression', 'Off');
-@ini_set('output_buffering', 'Off');
-@ini_set('implicit_flush', 'On');
-ob_end_clean();
-header('Content-Type: text/html; charset=utf-8');
+// Path to global feed cache file
+$globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
 
 ?>
 <!DOCTYPE html>
@@ -237,8 +249,8 @@ ob_flush();
 
 try {
     // Ensure cache directory exists
-    if (!is_dir(CACHE_PATH)) {
-        mkdir(CACHE_PATH, 0755, true);
+    if (!is_dir(dirname($globalFeedPath))) {
+        mkdir(dirname($globalFeedPath), 0755, true);
     }
     
     // Prepare final data structure
@@ -253,7 +265,7 @@ try {
     );
     
     // Save to file
-    $cacheFile = CACHE_PATH . 'global_feed.json';
+    $cacheFile = $globalFeedPath;
     $jsonContent = json_encode($finalData, JSON_PRETTY_PRINT);
     
     if (file_put_contents($cacheFile, $jsonContent)) {

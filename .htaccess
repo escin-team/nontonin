@@ -1,0 +1,98 @@
+# Apache .htaccess for MVC URL Rewriting
+# Root Directory - Place this in your web root (htdocs)
+# PHP 5.5/5.6 Compatible - No modern syntax
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Set base directory (adjust if installed in subdirectory)
+# For root domain: use /
+# For subdomain or subdirectory: use /your-folder/
+RewriteBase /
+
+# ==================== SECURITY RULES ====================
+
+# Block direct access to sensitive directories
+# Returns 403 Forbidden for anyone trying to access these folders directly
+
+# Block access to /app directory (controllers, models, views, core)
+RewriteRule ^app(/.*)?$ - [F,L]
+
+# Block access to /config directory (database & API credentials)
+RewriteRule ^config(/.*)?$ - [F,L]
+
+# Block access to /database directory (SQL files)
+RewriteRule ^database(/.*)?$ - [F,L]
+
+# Block access to /storage directory (cache files)
+RewriteRule ^storage(/.*)?$ - [F,L]
+
+# Block access to hidden files (except .htaccess)
+RewriteRule ^\.(?!well-known) - [F,L]
+
+# Block access to sensitive file extensions
+<FilesMatch "\.(env|log|sql|md|gitignore)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ==================== ALLOW STATIC ASSETS ====================
+
+# Allow direct access to assets folder (CSS, JS, Images)
+RewriteCond %{REQUEST_URI} ^/assets/
+RewriteRule ^ - [L]
+
+# Allow direct access to cron_aggregator.php (for cron jobs)
+RewriteCond %{REQUEST_URI} ^/cron_aggregator\.php$
+RewriteRule ^ - [L]
+
+# Allow direct access to existing files (images, css, js, etc.)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Allow direct access to existing directories
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ==================== MVC ROUTING ====================
+
+# All other requests go to index.php
+# The URL is passed as 'url' parameter
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# ==================== PERFORMANCE ====================
+
+# Enable GZIP Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json application/xml
+</IfModule>
+
+# Browser Caching for Static Assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType application/x-javascript "access plus 1 week"
+    ExpiresByType text/javascript "access plus 1 week"
+    ExpiresByType application/font-woff "access plus 1 month"
+    ExpiresByType application/font-woff2 "access plus 1 month"
+</IfModule>
+
+# Disable ETags (use Last-Modified instead)
+<IfModule mod_headers.c>
+    Header unset ETag
+</IfModule>
+FileETag None
+
+# Prevent directory listing
+Options -Indexes
+
+# UTF-8 Charset
+AddDefaultCharset UTF-8
