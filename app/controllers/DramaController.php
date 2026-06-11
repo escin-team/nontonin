@@ -95,13 +95,14 @@ class DramaController extends Controller {
     
     /**
      * Display video player page
-     * Route: /watch/{provider}/{episode_id}
+     * Route: /watch/{provider}/{drama_id}/{episode_num}
      * @param string $provider Provider slug
-     * @param string $episodeId Episode ID from API
+     * @param string $dramaId Drama ID from API
+     * @param int $episodeNum Episode number (default 1)
      */
-    public function watch($provider, $episodeId) {
+    public function watch($provider, $dramaId, $episodeNum = 1) {
         // Validate provider
-        $validProviders = array('dramabox', 'shortmax', 'reelshort', 'starshort', 'dramabite', 'freereels', 'fundrama', 'microdrama', 'vigloo', 'bilitv');
+        $validProviders = array('dramabox', 'shortmax', 'reelshort', 'starshort', 'dramabite', 'freereels', 'fundrama', 'microdrama', 'vigloo', 'bilitv', 'flickreels', 'idrama');
         if (!in_array($provider, $validProviders)) {
             redirect('home');
         }
@@ -113,7 +114,8 @@ class DramaController extends Controller {
         
         try {
             // Get streaming URL from API (short cache for streams - 15 minutes)
-            $streamData = $this->apiService->getStreamUrl($provider, $episodeId, 900);
+            // Signature baru: getStreamUrl($provider, $dramaId, $episodeNum, $cacheTime)
+            $streamData = $this->apiService->getStreamUrl($provider, $dramaId, $episodeNum, 900);
             
             if (!empty($streamData)) {
                 // Extract m3u8 URL from various response formats
@@ -129,6 +131,8 @@ class DramaController extends Controller {
                     $streamUrl = $streamData['data']['play_url'];
                 } elseif (isset($streamData['video_url'])) {
                     $streamUrl = $streamData['video_url'];
+                } elseif (isset($streamData['data']['stream_url'])) {
+                    $streamUrl = $streamData['data']['stream_url'];
                 }
                 
                 // Determine stream type based on URL
@@ -147,8 +151,9 @@ class DramaController extends Controller {
         
         // Prepare episode info for display
         $episodeInfo = array(
-            'episode_id' => $episodeId,
-            'title' => 'Episode ' . e($episodeId),
+            'episode_id' => $dramaId,
+            'episode_num' => $episodeNum,
+            'title' => 'Episode ' . e($episodeNum),
             'provider' => $provider
         );
         
@@ -156,11 +161,12 @@ class DramaController extends Controller {
         $this->view('player/watch', array(
             'videoUrl' => $streamUrl,
             'streamType' => $streamType,
-            'episodeId' => $episodeId,
+            'episodeId' => $dramaId,
+            'episodeNum' => $episodeNum,
             'provider' => $provider,
             'episodeInfo' => $episodeInfo,
             'error' => $error,
-            'page_title' => 'Watch Episode ' . e($episodeId) . ' - ' . APP_NAME
+            'page_title' => 'Watch Episode ' . e($episodeNum) . ' - ' . APP_NAME
         ));
     }
 }
