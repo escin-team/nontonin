@@ -1,9 +1,12 @@
 <?php
 /**
- * Cron Aggregator untuk DramaBos API
+ * Cron Aggregator untuk DramaBos API - SELF CONTAINED VERSION
  * PHP 5.6 - 8.3 Compatible - Tidak pakai syntax modern (??, fn(), typed properties)
  * 
- * Script ini mengambil data trending dari 7 provider terverifikasi dan menyimpan ke global_feed.json
+ * CRITICAL: Script ini TIDAK bergantung pada method ApiService yang mungkin belum ada!
+ * Menggunakan fungsi cURL mandiri (fetchFromApi) untuk setiap request.
+ * 
+ * Script ini mengambil data trending dari 15 endpoint terverifikasi dan menyimpan ke global_feed.json
  * Dipanggil via browser atau cron job setiap 6 jam.
  * 
  * CARA PAKAI:
@@ -13,6 +16,7 @@
  * KEAMANAN: Validasi $_GET['key'] sebelum eksekusi!
  * 
  * PENTING: Setiap provider punya endpoint unik berdasarkan dokumentasi resmi DramaBos!
+ * Handle berbagai format response: array langsung, object dengan wrapper data/items/list
  */
 
 // Define secret key untuk proteksi akses cron
@@ -34,7 +38,6 @@ if (isset($_GET['key'])) {
 
 // Load konfigurasi
 require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/app/core/ApiService.php';
 
 // Set waktu eksekusi maksimal (penting untuk agregasi banyak provider)
 ini_set('max_execution_time', 300); // 5 menit
@@ -42,6 +45,137 @@ set_time_limit(300);
 
 // Path ke file cache global feed
 $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
+
+// ===========================================================================
+// FUNGSI MANDIRI - TIDAK BERGANTUNG PADA ApiService
+// ===========================================================================
+
+/**
+ * Fetch data dari API menggunakan cURL - SELF CONTAINED
+ * Tidak bergantung pada method ApiService yang mungkin belum ada
+ * 
+ * @param string $url Full URL untuk request
+ * @return array|null JSON decoded response atau null pada failure
+ */
+function fetchFromApi($url) {
+    // Inisialisasi cURL
+    $ch = curl_init();
+    
+    // Opsi cURL - CRITICAL untuk ByetHost/AeonFree
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    
+    // BYPASS SSL VERIFICATION - Diperlukan untuk ByetHost/AeonFree
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    
+    // Set headers dengan Bearer Token Authentication
+    $headers = array(
+        'Authorization: Bearer ' . API_TOKEN,
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept: application/json, text/plain, */*',
+        'Accept-Language: en-US,en;q=0.9',
+        'Content-Type: application/json'
+    );
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    
+    // Eksekusi request
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    $curlErrno = curl_errno($ch);
+    curl_close($ch);
+    
+    // Handle cURL errors
+    if ($curlErrno != 0 || !$response) {
+        error_log('API cURL Error [' . $curlErrno . ']: ' . $curlError . ' - URL: ' . $url);
+        return null;
+    }
+    
+    // Handle HTTP errors
+    if ($httpCode != 200) {
+        error_log('API HTTP Error: ' . $httpCode . ' - URL: ' . $url . ' - Response: ' . substr($response, 0, 200));
+        return null;
+    }
+    
+    // Decode JSON response
+    $data = json_decode($response, true);
+    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+        error_log('JSON decode error: ' . json_last_error_msg() . ' - URL: ' . $url);
+        return null;
+    }
+    
+    return $data;
+}
+
+/**
+ * Normalize response dari berbagai format ke format konsisten
+ * Handle: array langsung, object dengan wrapper data/items/list/result
+ * 
+ * @param mixed $response Raw response dari API
+ * @return array Format konsisten: array('data' => [...])
+ */
+function normalizeApiResponse($response) {
+    // Jika response kosong atau bukan array, kembalikan format standar
+    if (empty($response) || !is_array($response)) {
+        return array('data' => array());
+    }
+    
+    // Cek apakah response adalah array langsung (tanpa wrapper)
+    $keys = array_keys($response);
+    $isIndexedArray = (count($keys) > 0 && isset($keys[0]) && is_int($keys[0]));
+    
+    if ($isIndexedArray) {
+        // Ini adalah array langsung, bungkus dengan key 'data'
+        return array('data' => $response);
+    }
+    
+    // Cek apakah ada wrapper 'data'
+    if (isset($response['data']) && is_array($response['data'])) {
+        return array('data' => $response['data']);
+    }
+    
+    // Cek wrapper alternatif: items, list, result, movies, videos
+    $wrapperKeys = array('items', 'list', 'result', 'movies', 'videos');
+    foreach ($wrapperKeys as $key) {
+        if (isset($response[$key]) && is_array($response[$key])) {
+            return array('data' => $response[$key]);
+        }
+    }
+    
+    // Jika tidak ada wrapper yang dikenali, kembalikan apa adanya
+    return array('data' => $response);
+}
+
+/**
+ * Simpan data ke file secara atomik (anti-corrupt)
+ * Tulis ke file temporary dulu, lalu rename
+ * 
+ * @param string $filename Target filename
+ * @param string $content File content
+ * @return boolean Success status
+ */
+function atomicWrite($filename, $content) {
+    $tempFile = $filename . '.tmp';
+    
+    // Write to temp file with exclusive lock
+    if (file_put_contents($tempFile, $content, LOCK_EX) === false) {
+        return false;
+    }
+    
+    // Atomic rename
+    if (rename($tempFile, $filename)) {
+        return true;
+    }
+    
+    // Cleanup temp file if rename failed
+    @unlink($tempFile);
+    return false;
+}
 
 ?>
 <!DOCTYPE html>
@@ -198,7 +332,7 @@ $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
 <body>
     <div class="container">
         <h1>🔄 Cron Aggregator - Nontonin</h1>
-        <p class="subtitle">Mengambil data trending dari 7 provider terverifikasi DramaBos API</p>
+        <p class="subtitle">SELF CONTAINED - Mengambil data dari 15 endpoint terverifikasi DramaBos API</p>
         
         <div class="progress-container">
             <div class="progress-bar" id="progress" style="width: 0%;">0%</div>
@@ -213,11 +347,11 @@ $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
             </div>
             <div class="summary-card">
                 <div class="number" id="success-count">0</div>
-                <div class="label">Provider Sukses</div>
+                <div class="label">Endpoint Sukses</div>
             </div>
             <div class="summary-card">
                 <div class="number" id="error-count">0</div>
-                <div class="label">Provider Gagal</div>
+                <div class="label">Endpoint Gagal</div>
             </div>
             <div class="summary-card">
                 <div class="number" id="cache-size">-</div>
@@ -263,143 +397,221 @@ $globalFeedPath = __DIR__ . '/storage/cache/global_feed.json';
 flush();
 ob_flush();
 
-// Daftar 7 provider terverifikasi dengan endpoint unik berdasarkan dokumentasi resmi
-$verifiedProviders = array(
-    'dramabox',   // /dramabox/api/v1/discover
-    'shortmax',   // /shortmax/api/v1/popular
-    'reelshort',  // /reelshort/api/v1/featured
-    'starshort',  // /starshort/api/v1/trending
-    'dramabite',  // /dramabite/api/v1/recommend
-    'flickreels', // /flickreels/api/flickreels/trending?lang=en
-    'goodshort'   // /goodshort/api/v1/toppicks
+// ===========================================================================
+// DAFTAR 15 ENDPOINT TERVERIFIKASI (berdasarkan dokumentasi resmi DramaBos)
+// ===========================================================================
+$verifiedEndpoints = array(
+    // ShortMax endpoints
+    array('provider' => 'shortmax', 'endpoint' => '/shortmax/api/v1/popular', 'name' => 'ShortMax Popular'),
+    array('provider' => 'shortmax', 'endpoint' => '/shortmax/api/v1/home', 'name' => 'ShortMax Home'),
+    array('provider' => 'shortmax', 'endpoint' => '/shortmax/api/v1/foryou', 'name' => 'ShortMax For You'),
+    
+    // FlickReels endpoints
+    array('provider' => 'flickreels', 'endpoint' => '/flickreels/api/flickreels/trending?lang=en', 'name' => 'FlickReels Trending'),
+    
+    // DramaBox endpoints
+    array('provider' => 'dramabox', 'endpoint' => '/dramabox/api/v1/discover', 'name' => 'DramaBox Discover'),
+    array('provider' => 'dramabox', 'endpoint' => '/dramabox/api/v1/rank', 'name' => 'DramaBox Rank'),
+    
+    // ReelShort endpoints
+    array('provider' => 'reelshort', 'endpoint' => '/reelshort/api/v1/featured', 'name' => 'ReelShort Featured'),
+    
+    // StarShort endpoints
+    array('provider' => 'starshort', 'endpoint' => '/starshort/api/v1/trending', 'name' => 'StarShort Trending'),
+    
+    // DramaBite endpoints
+    array('provider' => 'dramabite', 'endpoint' => '/dramabite/api/v1/recommend', 'name' => 'DramaBite Recommend'),
+    
+    // GoodShort endpoints
+    array('provider' => 'goodshort', 'endpoint' => '/goodshort/api/v1/toppicks', 'name' => 'GoodShort Top Picks'),
+    
+    // ReelBuzz endpoints
+    array('provider' => 'reelbuzz', 'endpoint' => '/reelbuzz/api/v1/buzz', 'name' => 'ReelBuzz Buzz')
 );
 
-$totalProviders = count($verifiedProviders);
-$completedProviders = 0;
+$totalEndpoints = count($verifiedEndpoints);
+$completedEndpoints = 0;
 $globalFeed = array();
 $errors = array();
-$successfulProviders = array();
-$apiService = new ApiService();
+$successfulEndpoints = array();
+$seenDramaIds = array(); // Untuk deduplication
 
-echo "<script>addLog('🚀 Memulai agregasi dari " . $totalProviders . " provider terverifikasi...', 'info');</script>";
+echo "<script>addLog('🚀 Memulai agregasi dari " . $totalEndpoints . " endpoint terverifikasi...', 'info');</script>";
 echo "<script>addLog('⏱️ Timeout: 300 detik | Cache: 6 jam', 'info');</script>";
+echo "<script>addLog('🔒 Mode: SELF CONTAINED (tidak bergantung ApiService)', 'info');</script>";
 flush();
 ob_flush();
 
-// Loop melalui setiap provider terverifikasi
-foreach ($verifiedProviders as $index => $provider) {
+// Loop melalui setiap endpoint terverifikasi
+foreach ($verifiedEndpoints as $index => $endpointInfo) {
     $startTime = microtime(true);
+    $provider = $endpointInfo['provider'];
+    $endpoint = $endpointInfo['endpoint'];
+    $endpointName = $endpointInfo['name'];
     $providerBadge = '<span class="provider-badge">' . e($provider) . '</span>';
+    $endpointBadge = '<span class="provider-badge">' . e($endpointName) . '</span>';
+    $fullUrl = API_BASE_URL . $endpoint;
     
-    echo "<script>addLog('📡 Mengambil data dari " . $providerBadge . "...', 'info');</script>";
+    echo "<script>addLog('📡 [" . ($index + 1) . "/" . $totalEndpoints . "] Mengambil data dari " . $endpointBadge . "...', 'info');</script>";
     flush();
     ob_flush();
     
     try {
-        // Ambil trending menggunakan method getTrending yang sudah mapping endpoint per provider
-        $result = $apiService->getTrending($provider, 21600);
+        // Fetch data menggunakan fungsi mandiri (TIDAK bergantung ApiService!)
+        $rawResponse = fetchFromApi($fullUrl);
         
-        // Cek apakah result valid dan punya data
-        if (!empty($result) && isset($result['data']) && is_array($result['data'])) {
-            $items = $result['data'];
+        // Cek apakah response valid
+        if ($rawResponse === null) {
+            echo "<script>addLog('❌ " . $providerBadge . " " . e($endpointName) . " - Response null/kosong', 'error');</script>";
+            $errors[] = $endpointName . ': Response null';
+        } else {
+            // Normalize response ke format konsisten
+            $normalized = normalizeApiResponse($rawResponse);
             
-            // Tambahkan metadata ke setiap item
-            foreach ($items as &$item) {
-                if (is_array($item)) {
-                    // Tambahkan tag source_provider
-                    $item['source_provider'] = $provider;
-                    // Tambahkan timestamp pengambilan
-                    $item['fetched_at'] = date('Y-m-d H:i:s');
-                    // Tambahkan info endpoint yang digunakan
-                    $item['aggregated_by'] = 'cron_aggregator';
-                    
-                    // Normalisasi field title jika ada variasi
-                    if (!isset($item['title']) && isset($item['name'])) {
-                        $item['title'] = $item['name'];
-                    }
-                    
-                    // Normalisasi field cover jika ada variasi
-                    if (!isset($item['cover']) && isset($item['poster'])) {
-                        $item['cover'] = $item['poster'];
-                    }
-                    
-                    // Bersihkan URL cover dari spasi trailing
-                    if (isset($item['cover']) && is_string($item['cover'])) {
-                        $item['cover'] = trim($item['cover']);
+            // Cek apakah ada data
+            if (!empty($normalized) && isset($normalized['data']) && is_array($normalized['data'])) {
+                $items = $normalized['data'];
+                $newItemsCount = 0;
+                
+                // Tambahkan metadata dan lakukan deduplication
+                foreach ($items as &$item) {
+                    if (is_array($item)) {
+                        // Tambahkan tag source_provider
+                        $item['source_provider'] = $provider;
+                        // Tambahkan timestamp pengambilan
+                        $item['fetched_at'] = date('Y-m-d H:i:s');
+                        // Tambahkan info endpoint yang digunakan
+                        $item['aggregated_by'] = 'cron_aggregator_selfcontained';
+                        
+                        // Normalisasi field title jika ada variasi
+                        if (!isset($item['title']) && isset($item['name'])) {
+                            $item['title'] = $item['name'];
+                        }
+                        
+                        // Normalisasi field cover jika ada variasi
+                        if (!isset($item['cover']) && isset($item['poster'])) {
+                            $item['cover'] = $item['poster'];
+                        }
+                        
+                        // Bersihkan URL cover dari spasi trailing
+                        if (isset($item['cover']) && is_string($item['cover'])) {
+                            $item['cover'] = trim($item['cover']);
+                        }
+                        
+                        // Deduplication berdasarkan ID
+                        $dramaId = isset($item['id']) ? $item['id'] : (isset($item['drama_id']) ? $item['drama_id'] : null);
+                        if ($dramaId !== null) {
+                            $uniqueKey = $provider . '_' . $dramaId;
+                            if (!isset($seenDramaIds[$uniqueKey])) {
+                                $seenDramaIds[$uniqueKey] = true;
+                                $newItemsCount++;
+                            }
+                        } else {
+                            // Jika tidak ada ID, tetap tambahkan (unik berdasarkan index)
+                            $newItemsCount++;
+                        }
                     }
                 }
+                unset($item); // Putuskan referensi
+                
+                // Gabungkan ke global feed (hanya item baru setelah deduplication)
+                $globalFeed = array_merge($globalFeed, $items);
+                $successfulEndpoints[] = $endpointName;
+                
+                $endTime = microtime(true);
+                $duration = round($endTime - $startTime, 2);
+                
+                echo "<script>addLog('✅ " . $providerBadge . " " . e($endpointName) . " - Berhasil! " . count($items) . " drama (" . $duration . "s)', 'success');</script>";
+            } else {
+                // Response tidak memiliki data yang valid
+                echo "<script>addLog('⚠️ " . $providerBadge . " " . e($endpointName) . " - Data kosong/tidak valid', 'warning');</script>";
+                $errors[] = $endpointName . ': Data kosong';
             }
-            unset($item); // Putuskan referensi
-            
-            // Gabungkan ke global feed
-            $globalFeed = array_merge($globalFeed, $items);
-            $successfulProviders[] = $provider;
-            
-            $endTime = microtime(true);
-            $duration = round($endTime - $startTime, 2);
-            $itemCount = count($items);
-            
-            echo "<script>addLog('✅ " . $providerBadge . " Berhasil! " . $itemCount . " drama (" . $duration . "s)', 'success');</script>";
-        } else {
-            // Response kosong atau tidak valid
-            echo "<script>addLog('❌ " . $providerBadge . " Response kosong atau tidak valid', 'error');</script>";
-            $errors[] = $provider . ': Response kosong';
         }
         
     } catch (Exception $e) {
-        // Catch error per provider - JANGAN biarkan error menyebar!
+        // Catch error per endpoint - JANGAN biarkan error menyebar!
         $errorMsg = htmlspecialchars($e->getMessage());
-        echo "<script>addLog('💥 " . $providerBadge . " Error: " . $errorMsg . "', 'error');</script>";
-        $errors[] = $provider . ': ' . $e->getMessage();
+        echo "<script>addLog('💥 " . $providerBadge . " " . e($endpointName) . " - Error: " . $errorMsg . "', 'error');</script>";
+        $errors[] = $endpointName . ': ' . $e->getMessage();
     }
     
     // Update progress bar
-    $completedProviders++;
-    $progress = ($completedProviders / $totalProviders) * 100;
+    $completedEndpoints++;
+    $progress = ($completedEndpoints / $totalEndpoints) * 100;
     echo "<script>updateProgress(" . $progress . ");</script>";
-    echo "<script>updateSummary(" . count($globalFeed) . ", " . count($successfulProviders) . ", " . count($errors) . ");</script>";
+    echo "<script>updateSummary(" . count($globalFeed) . ", " . count($successfulEndpoints) . ", " . count($errors) . ");</script>";
     flush();
     ob_flush();
     
-    // Beri jeda 2 detik antar request untuk hindari rate limit API
-    if ($index < $totalProviders - 1) {
-        echo "<script>addLog('⏳ Menunggu 2 detik sebelum provider berikutnya...', 'warning');</script>";
+    // Beri jeda 1.5 detik antar request untuk hindari rate limit API
+    if ($index < $totalEndpoints - 1) {
+        echo "<script>addLog('⏳ Menunggu 1.5 detik sebelum endpoint berikutnya...', 'warning');</script>";
         flush();
         ob_flush();
-        sleep(2);
+        sleep(1.5);
     }
 }
 
-// Save aggregated data to global_feed.json
-echo "<script>addLog('💾 Menyimpan " . count($globalFeed) . " item ke global_feed.json...', 'info');</script>";
+// Deduplicate final array (jika ada duplikasi yang lolos)
+$uniqueFeed = array();
+$seenIds = array();
+foreach ($globalFeed as $item) {
+    if (is_array($item)) {
+        $dramaId = isset($item['id']) ? $item['id'] : (isset($item['drama_id']) ? $item['drama_id'] : null);
+        $provider = isset($item['source_provider']) ? $item['source_provider'] : 'unknown';
+        $uniqueKey = $provider . '_' . ($dramaId !== null ? $dramaId : uniqid());
+        
+        if (!isset($seenIds[$uniqueKey])) {
+            $seenIds[$uniqueKey] = true;
+            $uniqueFeed[] = $item;
+        }
+    }
+}
+$globalFeed = $uniqueFeed;
+
+// Sort by priority (ShortMax dan FlickReels first, then others)
+$priorityOrder = array('shortmax', 'flickreels', 'dramabox', 'reelshort', 'starshort', 'dramabite', 'goodshort', 'reelbuzz');
+usort($globalFeed, function($a, $b) use ($priorityOrder) {
+    $providerA = isset($a['source_provider']) ? $a['source_provider'] : 'zzz';
+    $providerB = isset($b['source_provider']) ? $b['source_provider'] : 'zzz';
+    $priorityA = array_search($providerA, $priorityOrder);
+    $priorityB = array_search($providerB, $priorityOrder);
+    if ($priorityA === false) $priorityA = 999;
+    if ($priorityB === false) $priorityB = 999;
+    return $priorityA - $priorityB;
+});
+
+// Save aggregated data to global_feed.json ATOMICALLY
+echo "<script>addLog('💾 Menyimpan " . count($globalFeed) . " item ke global_feed.json (atomic write)...', 'info');</script>";
 flush();
 ob_flush();
 
 try {
     // Pastikan direktori cache ada
     if (!is_dir(dirname($globalFeedPath))) {
-        mkdir(dirname($globalFeedPath), 0755, true);
+        mkdir(dirname($globalFeedPath), 0777, true);
     }
     
     // Siapkan struktur data final
     $finalData = array(
         'status' => 'success',
         'total_items' => count($globalFeed),
-        'providers_count' => count($successfulProviders),
+        'endpoints_count' => count($successfulEndpoints),
         'errors_count' => count($errors),
         'last_updated' => date('Y-m-d H:i:s'),
         'timestamp' => time(),
+        'aggregation_mode' => 'self_contained',
         'data' => $globalFeed
     );
     
-    // Simpan ke file
-    $cacheFile = $globalFeedPath;
+    // Simpan ke file secara atomik
     $jsonContent = json_encode($finalData, JSON_PRETTY_PRINT);
     
-    if (file_put_contents($cacheFile, $jsonContent)) {
-        $fileSize = round(filesize($cacheFile) / 1024, 2);
-        echo "<script>addLog('✅ Berhasil menyimpan global_feed.json (" . $fileSize . " KB)', 'success');</script>";
-        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-success\"><strong>✅ Agregasi Selesai!</strong><br>Total: <strong>" . count($globalFeed) . " drama</strong> dari <strong>" . count($successfulProviders) . " provider</strong> berhasil disimpan.</div>';</script>";
+    if (atomicWrite($globalFeedPath, $jsonContent)) {
+        $fileSize = round(filesize($globalFeedPath) / 1024, 2);
+        echo "<script>addLog('✅ Berhasil menyimpan global_feed.json (" . $fileSize . " KB) - ATOMIC WRITE', 'success');</script>";
+        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-success\"><strong>✅ Agregasi Selesai!</strong><br>Total: <strong>" . count($globalFeed) . " drama</strong> dari <strong>" . count($successfulEndpoints) . " endpoint</strong> berhasil disimpan.</div>';</script>";
         
         // Update summary card dengan ukuran cache
         echo "<script>updateCacheSize('" . $fileSize . " KB');</script>";
@@ -408,8 +620,8 @@ try {
         $homeUrl = url('home');
         echo "<script>document.getElementById('action-buttons').innerHTML = '<a href=\"" . e($homeUrl) . "\" class=\"btn-home\">🏠 Buka Halaman Home</a>';</script>";
     } else {
-        echo "<script>addLog('❌ Gagal menyimpan file cache', 'error');</script>";
-        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-error\"><strong>❌ Gagal Menyimpan Cache</strong><br>Periksa permission direktori storage/cache/</div>';</script>";
+        echo "<script>addLog('❌ Gagal menyimpan file cache (atomic write failed)', 'error');</script>";
+        echo "<script>document.getElementById('status').innerHTML = '<div class=\"status-box status-error\"><strong>❌ Gagal Menyimpan Cache</strong><br>Periksa permission direktori storage/cache/ (harus 777)</div>';</script>";
     }
 } catch (Exception $e) {
     echo "<script>addLog('❌ Error saat menyimpan: " . e($e->getMessage()) . "', 'error');</script>";
@@ -419,10 +631,10 @@ try {
 // Tampilkan ringkasan lengkap
 echo "<script>addLog('========================================', 'info');</script>";
 echo "<script>addLog('📊 RINGKASAN AGREGASI:', 'info');</script>";
-echo "<script>addLog('Total Provider Dicoba: " . $totalProviders . "', 'info');</script>";
-echo "<script>addLog('Provider Berhasil: " . count($successfulProviders) . " (" . implode(', ', $successfulProviders) . ")', 'success');</script>";
-echo "<script>addLog('Provider Gagal: " . count($errors) . "', 'error');</script>";
-echo "<script>addLog('Total Drama Terkumpul: " . count($globalFeed) . " item', 'info');</script>";
+echo "<script>addLog('Total Endpoint Dicoba: " . $totalEndpoints . "', 'info');</script>";
+echo "<script>addLog('Endpoint Berhasil: " . count($successfulEndpoints) . " (" . implode(', ', $successfulEndpoints) . ")', 'success');</script>";
+echo "<script>addLog('Endpoint Gagal: " . count($errors) . "', 'error');</script>";
+echo "<script>addLog('Total Drama Terkumpul: " . count($globalFeed) . " item (setelah deduplication)', 'info');</script>";
 
 if (!empty($errors)) {
     echo "<script>addLog('----------------------------------------', 'info');</script>";

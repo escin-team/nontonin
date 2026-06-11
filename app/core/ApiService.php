@@ -371,4 +371,57 @@ class ApiService {
         $endpoint = 'category/' . urlencode($genreId);
         return $this->request($provider, $endpoint, $cacheTime);
     }
+    
+    /**
+     * Get feed with custom endpoint - USED BY CRON AGGREGATOR
+     * This method does NOT depend on other ApiService methods (self-contained)
+     * @param string $endpoint Full endpoint path (e.g., '/shortmax/api/v1/popular')
+     * @param int $cacheTime Cache duration in seconds
+     * @return array|null Normalized response or null on failure
+     */
+    public function getFeedCustom($endpoint, $cacheTime = 21600) {
+        // Build full URL
+        $url = $this->baseUrl . $endpoint;
+        
+        // Make request using internal makeRequest method
+        $rawResponse = $this->makeRequest($url, $cacheTime);
+        
+        if ($rawResponse === null) {
+            return null;
+        }
+        
+        // Normalize response to consistent format
+        return $this->normalizeResponse($rawResponse);
+    }
+    
+    /**
+     * Get data from custom endpoint with optional params - FOR FUTURE USE
+     * Self-contained method that doesn't depend on other ApiService methods
+     * @param string $endpoint Full endpoint path
+     * @param array $params Optional query parameters
+     * @param int $cacheTime Cache duration in seconds
+     * @return array|null Normalized response or null on failure
+     */
+    public function getCustomEndpoint($endpoint, $params = array(), $cacheTime = 21600) {
+        // Build full URL with optional query parameters
+        $url = $this->baseUrl . $endpoint;
+        
+        // Add query parameters if provided
+        if (!empty($params) && is_array($params)) {
+            $queryString = http_build_query($params);
+            if (!empty($queryString)) {
+                $url .= (strpos($endpoint, '?') !== false ? '&' : '?') . $queryString;
+            }
+        }
+        
+        // Make request using internal makeRequest method
+        $rawResponse = $this->makeRequest($url, $cacheTime);
+        
+        if ($rawResponse === null) {
+            return null;
+        }
+        
+        // Normalize response to consistent format
+        return $this->normalizeResponse($rawResponse);
+    }
 }
