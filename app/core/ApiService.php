@@ -60,15 +60,19 @@ class ApiService {
      * @param string $cacheKey Cache file identifier
      * @param string $endpoint API endpoint
      * @param array $params Query parameters
+     * @param int $duration Cache duration in seconds (optional)
      * @return mixed Cached or fresh data
      */
-    public function getCached($cacheKey, $endpoint, $params = array()) {
+    public function getCached($cacheKey, $endpoint, $params = array(), $duration = null) {
         $cacheFile = CACHE_DIR . '/' . md5($cacheKey) . '.json';
+        
+        // Use custom duration if provided, otherwise use default
+        $cacheTime = isset($duration) ? $duration : CACHE_DURATION;
         
         // Check if cache exists and is not expired
         if (file_exists($cacheFile)) {
-            $cacheTime = filemtime($cacheFile);
-            if ((time() - $cacheTime) < CACHE_DURATION) {
+            $fileModTime = filemtime($cacheFile);
+            if ((time() - $fileModTime) < $cacheTime) {
                 $cachedData = file_get_contents($cacheFile);
                 $data = json_decode($cachedData, true);
                 if ($data !== null) {
@@ -103,16 +107,16 @@ class ApiService {
     }
     
     /**
-     * Get drama details by ID
+     * Get drama details by ID with long cache (6 hours)
      * @param string $showId Drama ID from API
      * @return array Drama details
      */
     public function getDramaDetails($showId) {
-        return $this->getCached('drama_' . $showId, '/dramas/' . $showId);
+        return $this->getCached('drama_' . $showId, '/dramas/' . $showId, array(), CACHE_DURATION_LONG);
     }
     
     /**
-     * Get episode streaming URL
+     * Get episode streaming URL (no cache - real-time)
      * @param string $showId Drama ID
      * @param string $episodeId Episode ID
      * @return array Streaming URLs

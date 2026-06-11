@@ -16,6 +16,7 @@ define('API_BASE_URL', 'https://api.dramabos.com'); // Replace with actual API U
 define('API_KEY', ''); // Your API key if required
 define('CACHE_DIR', __DIR__ . '/../storage/cache');
 define('CACHE_DURATION', 3600); // Cache duration in seconds (1 hour)
+define('CACHE_DURATION_LONG', 21600); // Long cache duration (6 hours) for drama details
 
 // Application settings
 define('BASE_URL', 'http://localhost/streaming/public');
