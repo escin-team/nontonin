@@ -1,7 +1,7 @@
 <?php
 /**
- * Application Entry Point - DramaStream
- * PHP 5.5/5.6 Compatible (AeonFree Hosting)
+ * Application Entry Point - Nontonin (DramaStream)
+ * PHP 5.5/5.6 - 8.3 Compatible (AeonFree/ByetHost Hosting)
  * 
  * Rules Applied:
  * - No null coalescing (??) - using isset() instead
@@ -10,12 +10,13 @@
  * - No short array syntax [] - using array() instead
  * - Using __DIR__ for all file paths
  * - SSL verification bypassed for cURL
+ * - All URLs use url() helper to prevent double-slash 404 errors
  */
 
 // Define base path using __DIR__ (PHP 5.3+)
 define('BASE_PATH', __DIR__);
 
-// Load configuration
+// Load configuration (includes url(), redirect(), e() helpers)
 require_once __DIR__ . '/config/config.php';
 
 // Register manual autoloader for PHP 5.5/5.6
@@ -62,17 +63,24 @@ $router->get('/auth/logout', 'AuthController@logout');
 // Home Route
 $router->get('/home', 'HomeController@index');
 
-// Drama Routes
-$router->get('/drama/{slug}', 'DramaController@detail');
-$router->get('/watch/{slug}/{episodeId}', 'DramaController@watch');
+// Drama Routes - Updated for DramaBos API with provider parameter
+// Route: /drama/{provider}/{drama_id}
+$router->get('/drama/{provider}/{id}', 'HomeController@detail');
+$router->get('/drama/{provider}/{dramaId}', 'DramaController@detail');
+
+// Watch/Streaming Routes
+// Route: /watch/{provider}/{episode_id}
+$router->get('/watch/{provider}/{episodeId}', 'DramaController@watch');
+
+// AJAX Routes
 $router->post('/drama/update-progress', 'DramaController@updateProgress');
 
 // Default route
 $router->get('/', function() {
     if (isset($_SESSION['user_id'])) {
-        header('Location: ' . BASE_URL . '/home');
+        redirect('home');
     } else {
-        header('Location: ' . BASE_URL . '/auth/login');
+        redirect('auth/login');
     }
 });
 

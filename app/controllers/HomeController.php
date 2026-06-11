@@ -1,8 +1,10 @@
 <?php
 /**
  * Home Controller
- * Displays homepage with cached global feed from aggregator
- * PHP 5.6 Compatible - No modern syntax allowed
+ * Displays homepage with cached global feed from multiple providers
+ * PHP 5.6 - 8.3 Compatible
+ * 
+ * Uses url() and redirect() helpers to prevent ByetHost 404 errors
  */
 
 require_once __DIR__ . '/../core/Controller.php';
@@ -24,52 +26,75 @@ class HomeController extends Controller {
     }
     
     /**
-     * Display homepage - READS FROM CACHE ONLY (no real-time API calls)
+     * Display homepage - Fetches feed from multiple DramaBos providers
+     * Cache duration: 6 hours (21600 seconds)
      */
     public function index() {
         $this->requireLogin();
         
-        // Path to global feed cache
-        $cacheFile = CACHE_PATH . 'global_feed.json';
+        // Get list of providers
+        $providers = getDramaBosProviders();
         
+        // Limit to first 5 providers for performance on free hosting
+        $providers = array_slice($providers, 0, 5);
+        
+        $allShows = array();
         $trendingShows = array();
-        $cacheStatus = 'empty';
-        $lastUpdated = null;
         
-        // Read from global_feed.json cache
-        if (file_exists($cacheFile)) {
-            $cacheContent = file_get_contents($cacheFile);
-            $cacheData = json_decode($cacheContent, true);
+        // Loop through providers and fetch feed data
+        foreach ($providers as $provider) {
+            // Get feed from each provider (cached for 6 hours)
+            $feedData = $this->apiService->getFeed($provider, 21600);
             
-            if ($cacheData !== null && isset($cacheData['data']) && is_array($cacheData['data'])) {
-                $trendingShows = $cacheData['data'];
-                $cacheStatus = 'hit';
-                $lastUpdated = isset($cacheData['last_updated']) ? $cacheData['last_updated'] : null;
-                
-                // Get China drama category ID for database mapping
-                $chinaCategory = $this->getCategoryBySlug('drama-china');
-                $categoryId = $chinaCategory ? $chinaCategory['id'] : 1;
-                
-                // Add local_id to each show by saving to database
-                foreach ($trendingShows as &$show) {
-                    if (is_array($show) && isset($show['id'])) {
-                        $showId = $this->showModel->upsertFromApi($categoryId, $show);
-                        $show['local_id'] = $showId;
+            if (!empty($feedData) && isset($feedData['data']) && is_array($feedData['data'])) {
+                // Add provider info to each show
+                foreach ($feedData['data'] as &$show) {
+                    if (is_array($show)) {
+                        $show['source_provider'] = $provider;
+                        // Generate unique slug using provider and ID
+                        if (isset($show['id'])) {
+                            $show['slug'] = $provider . '-' . $show['id'];
+                        }
                     }
                 }
                 unset($show); // Break reference
+                
+                // Merge shows from all providers
+                $allShows = array_merge($allShows, $feedData['data']);
+            }
+            
+            // Also get trending data
+            $trendingData = $this->apiService->getTrending($provider, 21600);
+            if (!empty($trendingData) && isset($trendingData['data']) && is_array($trendingData['data'])) {
+                foreach ($trendingData['data'] as &$show) {
+                    if (is_array($show)) {
+                        $show['source_provider'] = $provider;
+                        if (isset($show['id'])) {
+                            $show['slug'] = $provider . '-' . $show['id'];
+                        }
+                    }
+                }
+                unset($show);
+                $trendingShows = array_merge($trendingShows, $trendingData['data']);
             }
         }
         
+        // Limit results to avoid overwhelming display
+        $trendingShows = array_slice($trendingShows, 0, 12);
+        $allShows = array_slice($allShows, 0, 12);
+        
         // Get recently added shows from database
-        $recentShows = $this->showModel->getAll(null, 12, 0);
+        $recentShows = array();
+        if (method_exists($this->showModel, 'getAll')) {
+            $recentShows = $this->showModel->getAll(null, 12, 0);
+        }
         
         $this->view('home/index', array(
             'trending' => $trendingShows,
             'recent' => $recentShows,
+            'shows' => $allShows,
             'page_title' => 'Home - ' . APP_NAME,
-            'cache_status' => $cacheStatus,
-            'last_updated' => $lastUpdated
+            'providers' => $providers
         ));
     }
     
@@ -82,17 +107,17 @@ class HomeController extends Controller {
         $this->requireLogin();
         
         // Validate provider
-        $validProviders = array('dramabox', 'shortmax', 'reelshort', 'starshort', 'dramabite', 'freereels', 'fundrama', 'microdrama', 'vigloo', 'bilitv');
+        $validProviders = getDramaBosProviders();
         if (!in_array($provider, $validProviders)) {
-            header('Location: ' . BASE_URL . '/home');
-            exit;
+            // Redirect to home using safe redirect helper
+            redirect('home');
         }
         
-        // Get drama details (cache 1 hour)
-        $dramaDetails = $this->apiService->getDramaDetails($provider, $dramaId, true, 3600);
+        // Get drama details (cache 6 hours)
+        $dramaDetails = $this->apiService->getDramaDetails($provider, $dramaId, 21600);
         
-        // Get episodes list (cache 1 hour)
-        $episodes = $this->apiService->getDramaEpisodes($provider, $dramaId, true, 3600);
+        // Get episodes list (cache 6 hours)
+        $episodes = $this->apiService->getEpisodes($provider, $dramaId, 21600);
         
         if (empty($dramaDetails)) {
             // Show error if drama not found
@@ -103,84 +128,35 @@ class HomeController extends Controller {
             return;
         }
         
+        // Process episodes data
+        $episodesList = array();
+        if (!empty($episodes)) {
+            if (isset($episodes['data']) && is_array($episodes['data'])) {
+                $episodesList = $episodes['data'];
+            } elseif (isset($episodes['episodes']) && is_array($episodes['episodes'])) {
+                $episodesList = $episodes['episodes'];
+            }
+        }
+        
         // Add provider info to drama details
         $dramaDetails['source_provider'] = $provider;
-        $dramaDetails['episodes'] = isset($episodes['data']) ? $episodes['data'] : (isset($episodes['episodes']) ? $episodes['episodes'] : array());
+        $dramaDetails['episodes'] = $episodesList;
         
-        // Get category for database mapping
-        $category = $this->getCategoryBySlug('drama-china');
-        $categoryId = $category ? $category['id'] : 1;
-        
-        // Save to database and get local ID
-        $localId = $this->showModel->upsertFromApi($categoryId, $dramaDetails);
-        $dramaDetails['local_id'] = $localId;
+        // Save to database if model exists
+        if (method_exists($this->showModel, 'upsertFromApi')) {
+            $category = $this->getCategoryBySlug('drama-china');
+            $categoryId = $category ? $category['id'] : 1;
+            $localId = $this->showModel->upsertFromApi($categoryId, $dramaDetails);
+            $dramaDetails['local_id'] = $localId;
+        }
         
         $this->view('home/detail', array(
             'drama' => $dramaDetails,
             'provider' => $provider,
             'drama_id' => $dramaId,
-            'page_title' => (isset($dramaDetails['title']) ? $dramaDetails['title'] : 'Detail') . ' - ' . APP_NAME
+            'episodes' => $episodesList,
+            'page_title' => (isset($dramaDetails['title']) ? e($dramaDetails['title']) : 'Detail') . ' - ' . APP_NAME
         ));
-    }
-    
-    /**
-     * Get streaming URL for an episode
-     * @param string $provider Provider slug
-     * @param string $episodeId Episode ID from API
-     */
-    public function stream($provider, $episodeId) {
-        $this->requireLogin();
-        
-        // Validate provider
-        $validProviders = array('dramabox', 'shortmax', 'reelshort', 'starshort', 'dramabite', 'freereels', 'fundrama', 'microdrama', 'vigloo', 'bilitv');
-        if (!in_array($provider, $validProviders)) {
-            header('Location: ' . BASE_URL . '/home');
-            exit;
-        }
-        
-        // Get stream URL (cache 15 minutes only)
-        $streamData = $this->apiService->getEpisodeStream($provider, $episodeId, true, 900);
-        
-        if (empty($streamData)) {
-            // Return JSON error
-            header('Content-Type: application/json');
-            echo json_encode(array(
-                'status' => 'error',
-                'message' => 'Stream URL not found or expired'
-            ));
-            exit;
-        }
-        
-        // Extract m3u8 URL from response
-        $m3u8Url = null;
-        $qualityUrls = array();
-        
-        if (isset($streamData['url'])) {
-            $m3u8Url = $streamData['url'];
-        } elseif (isset($streamData['play_url'])) {
-            $m3u8Url = $streamData['play_url'];
-        } elseif (isset($streamData['stream_url'])) {
-            $m3u8Url = $streamData['stream_url'];
-        } elseif (isset($streamData['data']['url'])) {
-            $m3u8Url = $streamData['data']['url'];
-        }
-        
-        // Handle multiple quality URLs if present
-        if (isset($streamData['qualities']) && is_array($streamData['qualities'])) {
-            $qualityUrls = $streamData['qualities'];
-        }
-        
-        // Return JSON response with stream data
-        header('Content-Type: application/json');
-        echo json_encode(array(
-            'status' => 'success',
-            'provider' => $provider,
-            'episode_id' => $episodeId,
-            'm3u8_url' => $m3u8Url,
-            'qualities' => $qualityUrls,
-            'cached' => true
-        ));
-        exit;
     }
     
     /**
@@ -189,10 +165,14 @@ class HomeController extends Controller {
      * @return array|null
      */
     private function getCategoryBySlug($slug) {
-        $stmt = $this->db->prepare('SELECT * FROM categories WHERE slug = ?');
-        $stmt->execute(array($slug));
-        $category = $stmt->fetch();
-        
-        return $category ?: null;
+        try {
+            $stmt = $this->db->prepare('SELECT * FROM categories WHERE slug = ?');
+            $stmt->execute(array($slug));
+            $category = $stmt->fetch();
+            return $category ?: null;
+        } catch (Exception $e) {
+            error_log('Error getting category: ' . $e->getMessage());
+            return null;
+        }
     }
 }
