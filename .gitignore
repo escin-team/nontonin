@@ -1,21 +1,20 @@
-```php
+```
 # Compiled and build artifacts
 *.pyc
+__pycache__/
 *.o
 *.obj
-dist/
-build/
-target/
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
 # Dependencies
 vendor/
 node_modules/
-.venv/
-venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-.gradle/
+*.lock
 
 # Logs and temp files
 *.log
@@ -26,7 +25,7 @@ __pycache__/
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
 # Editors
 .vscode/
@@ -34,32 +33,42 @@ __pycache__/
 *.swp
 *.swo
 
-# System files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Coverage
+# Build and distribution
+dist/
+build/
+target/
 coverage/
 htmlcov/
-.coverage
-
-# Compressed files
+*.tar*
 *.zip
 *.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
 *.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
+*.7z
+
+# Cache
+.cache/
+.mypy_cache/
+.pytest_cache/
+.gradle/
+
+# PHP specific
+*.php~
+.htaccess
+!htdocs/.htaccess
+!htdocs/storage/cache/.htaccess
+
+# Database
+*.sql
+*.db
+*.sqlite
+
+# Storage and cache directories
+storage/
+cache/
+tmp/
+temp/
 ```
