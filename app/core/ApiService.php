@@ -1,76 +1,37 @@
 <?php
 /**
  * API Service Class
- * Handles communication with DramaBos API
- * PHP 5.6 Compatible
+ * Handles communication with DramaBos API (32+ providers)
+ * PHP 5.6 Compatible - No modern syntax allowed
  */
 
 class ApiService {
     private $baseUrl;
-    private $apiKey;
+    private $apiToken;
     
     public function __construct() {
         $this->baseUrl = API_BASE_URL;
-        $this->apiKey = API_KEY;
+        $this->apiToken = API_TOKEN;
     }
     
     /**
-     * Make HTTP request using cURL
-     * @param string $endpoint API endpoint
-     * @param array $params Query parameters
-     * @return mixed JSON decoded response
+     * Make HTTP request using cURL to DramaBos API
+     * @param string $provider Provider slug (dramabox, shortmax, reelshort, etc.)
+     * @param string $endpoint API endpoint (feed, trending, drama/{id}, etc.)
+     * @param boolean $useCache Whether to use file caching
+     * @param int $cacheTime Cache duration in seconds (default 6 hours)
+     * @return mixed JSON decoded response or null on failure
      */
-    private function request($endpoint, $params = array()) {
-        $url = $this->baseUrl . $endpoint;
+    public function request($provider, $endpoint, $useCache = true, $cacheTime = 21600) {
+        // Build full URL: https://prod-api.dramabos.live/{provider}/api/v1/{endpoint}
+        $url = $this->baseUrl . '/' . $provider . '/api/v1/' . $endpoint;
         
-        if (!empty($params)) {
-            $url .= '?' . http_build_query($params);
-        }
+        // Generate cache key from URL
+        $cacheKey = md5($url);
+        $cacheFile = CACHE_PATH . $cacheKey . '.json';
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable for development only
-        
-        $headers = array(
-            'Content-Type: application/json',
-            'Accept: application/json'
-        );
-        
-        if (!empty($this->apiKey)) {
-            $headers[] = 'Authorization: Bearer ' . $this->apiKey;
-        }
-        
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        if ($httpCode == 200 && $response) {
-            return json_decode($response, true);
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Get cached data or fetch from API
-     * @param string $cacheKey Cache file identifier
-     * @param string $endpoint API endpoint
-     * @param array $params Query parameters
-     * @param int $duration Cache duration in seconds (optional)
-     * @return mixed Cached or fresh data
-     */
-    public function getCached($cacheKey, $endpoint, $params = array(), $duration = null) {
-        $cacheFile = CACHE_DIR . '/' . md5($cacheKey) . '.json';
-        
-        // Use custom duration if provided, otherwise use default
-        $cacheTime = isset($duration) ? $duration : CACHE_DURATION;
-        
-        // Check if cache exists and is not expired
-        if (file_exists($cacheFile)) {
+        // Check cache first if enabled
+        if ($useCache && file_exists($cacheFile)) {
             $fileModTime = filemtime($cacheFile);
             if ((time() - $fileModTime) < $cacheTime) {
                 $cachedData = file_get_contents($cacheFile);
@@ -81,13 +42,47 @@ class ApiService {
             }
         }
         
-        // Fetch fresh data from API
-        $data = $this->request($endpoint, $params);
+        // Initialize cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Bypass SSL on AeonFree
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Prevent hanging
         
-        if ($data !== null) {
-            // Save to cache
-            if (!is_dir(CACHE_DIR)) {
-                mkdir(CACHE_DIR, 0755, true);
+        // Set headers with Bearer Token
+        $headers = array(
+            'Authorization: Bearer ' . $this->apiToken,
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept: application/json',
+            'Content-Type: application/json'
+        );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+        // Execute request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        // Handle errors
+        if ($httpCode != 200 || !$response) {
+            error_log('API Request failed: ' . $url . ' - HTTP ' . $httpCode . ' - ' . $curlError);
+            return null;
+        }
+        
+        // Decode JSON response
+        $data = json_decode($response, true);
+        if ($data === null) {
+            error_log('JSON decode failed for: ' . $url);
+            return null;
+        }
+        
+        // Save to cache if enabled
+        if ($useCache) {
+            if (!is_dir(CACHE_PATH)) {
+                mkdir(CACHE_PATH, 0755, true);
             }
             file_put_contents($cacheFile, json_encode($data));
         }
@@ -96,44 +91,72 @@ class ApiService {
     }
     
     /**
-     * Get trending/popular dramas
-     * @return array List of dramas
+     * Get feed/trending from a specific provider
+     * @param string $provider Provider slug
+     * @param string $type Feed type ('feed' or 'trending')
+     * @param boolean $useCache Whether to cache
+     * @param int $cacheTime Cache duration
+     * @return array|null List of dramas
      */
-    public function getTrendingDramas() {
-        return $this->getCached('trending_dramas', '/dramas/trending', array(
-            'category' => 'china',
-            'limit' => 20
-        ));
+    public function getProviderFeed($provider, $type = 'feed', $useCache = true, $cacheTime = 21600) {
+        $endpoint = $type;
+        return $this->request($provider, $endpoint, $useCache, $cacheTime);
     }
     
     /**
-     * Get drama details by ID with long cache (6 hours)
-     * @param string $showId Drama ID from API
-     * @return array Drama details
+     * Get drama details by ID
+     * @param string $provider Provider slug
+     * @param string $dramaId Drama ID from API
+     * @param boolean $useCache Whether to cache
+     * @param int $cacheTime Cache duration (default 1 hour)
+     * @return array|null Drama details
      */
-    public function getDramaDetails($showId) {
-        return $this->getCached('drama_' . $showId, '/dramas/' . $showId, array(), CACHE_DURATION_LONG);
+    public function getDramaDetails($provider, $dramaId, $useCache = true, $cacheTime = 3600) {
+        $endpoint = 'drama/' . $dramaId;
+        return $this->request($provider, $endpoint, $useCache, $cacheTime);
     }
     
     /**
-     * Get episode streaming URL (no cache - real-time)
-     * @param string $showId Drama ID
-     * @param string $episodeId Episode ID
-     * @return array Streaming URLs
+     * Get episodes list for a drama
+     * @param string $provider Provider slug
+     * @param string $dramaId Drama ID from API
+     * @param boolean $useCache Whether to cache
+     * @param int $cacheTime Cache duration (default 1 hour)
+     * @return array|null List of episodes
      */
-    public function getEpisodeStream($showId, $episodeId) {
-        // Don't cache streaming URLs as they may expire
-        return $this->request('/dramas/' . $showId . '/episodes/' . $episodeId . '/stream');
+    public function getDramaEpisodes($provider, $dramaId, $useCache = true, $cacheTime = 3600) {
+        $endpoint = 'drama/' . $dramaId . '/episodes';
+        return $this->request($provider, $endpoint, $useCache, $cacheTime);
     }
     
     /**
-     * Search dramas
-     * @param string $query Search query
-     * @return array Search results
+     * Get streaming URL for an episode
+     * @param string $provider Provider slug
+     * @param string $episodeId Episode ID from API
+     * @param boolean $useCache Whether to cache
+     * @param int $cacheTime Cache duration (default 15 minutes)
+     * @return array|null Stream data with m3u8 URL
      */
-    public function searchDramas($query) {
-        return $this->getCached('search_' . md5($query), '/dramas/search', array(
-            'q' => $query
-        ));
+    public function getEpisodeStream($provider, $episodeId, $useCache = true, $cacheTime = 900) {
+        $endpoint = 'stream/' . $episodeId;
+        return $this->request($provider, $endpoint, $useCache, $cacheTime);
+    }
+    
+    /**
+     * Clear all cached files
+     * @return boolean Success status
+     */
+    public function clearCache() {
+        if (!is_dir(CACHE_PATH)) {
+            return false;
+        }
+        
+        $files = glob(CACHE_PATH . '*.json');
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        return true;
     }
 }
