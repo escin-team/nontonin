@@ -30,20 +30,43 @@ class ApiService {
     private $baseUrl;
     private $apiToken;
     
-    // Mapping endpoint trending per provider berdasarkan dokumentasi resmi
-    private $trendingEndpoints = array(
-        'shortmax' => '/shortmax/api/v1/popular',
+    // Mapping endpoint feed/trending per provider berdasarkan dokumentasi resmi (32 providers)
+    private $feedMap = array(
+        'shortmax' => '/shortmax/api/v1/home',
         'flickreels' => '/flickreels/api/flickreels/trending?lang=en',
         'dramabox' => '/dramabox/api/v1/discover',
         'reelshort' => '/reelshort/api/v1/featured',
         'starshort' => '/starshort/api/v1/trending',
         'dramabite' => '/dramabite/api/v1/recommend',
         'goodshort' => '/goodshort/api/v1/toppicks',
-        'reelbuzz' => '/reelbuzz/api/v1/buzz'
+        'reelbuzz' => '/reelbuzz/api/v1/buzz',
+        'freereels' => '/freereels/api/v1/trending',
+        'vigloo' => '/vigloo/api/v1/trending',
+        'dramawave' => '/dramawave/api/v1/featured',
+        'microdrama' => '/microdrama/api/v1/feed',
+        'bilitv' => '/bilitv/api/v1/home',
+        'netshort' => '/netshort/api/v1/hot',
+        'melolo' => '/melolo/api/v1/hot',
+        'velolo' => '/velolo/api/v1/trending',
+        'stardusttv' => '/stardusttv/api/v1/stellar',
+        'serialplus' => '/serialplus/api/v1/weekly',
+        'dotdrama' => '/dotdrama/api/v1/featured',
+        'rapidtv' => '/rapidtv/api/v1/trending',
+        'shortswave' => '/shortswave/api/v1/wave',
+        'dramanova' => '/dramanova/api/v1/nova',
+        'cubetv' => '/cubetv/api/v1/hot',
+        'flareflow' => '/flareflow/api/v1/flare',
+        'moboreels' => '/moboreels/api/v1/hot',
+        'happyshort' => '/happyshort/api/v1/happy',
+        'reelife' => '/reelife/api/v1/daily',
+        'pinedrama' => '/pinedrama/api/v1/hot',
+        'flextv' => '/flextv/api/v1/trending',
+        'reelala' => '/reelala/api/v1/hot',
+        'idrama' => '/idrama/home?lang=id'
     );
     
     // Mapping endpoint detail per provider
-    private $detailEndpoints = array(
+    private $detailMap = array(
         'flickreels' => '/flickreels/api/flickreels/detail?id=',
         'idrama' => '/idrama/drama/',
         'dramabox' => '/dramabox/api/v1/detail/',
@@ -52,7 +75,99 @@ class ApiService {
         'starshort' => '/starshort/api/v1/detail/',
         'dramabite' => '/dramabite/api/v1/detail/',
         'goodshort' => '/goodshort/api/v1/detail/',
-        'reelbuzz' => '/reelbuzz/api/v1/detail/'
+        'reelbuzz' => '/reelbuzz/api/v1/detail/',
+        'freereels' => '/freereels/api/v1/detail/',
+        'vigloo' => '/vigloo/api/v1/detail/',
+        'dramawave' => '/dramawave/api/v1/detail/',
+        'microdrama' => '/microdrama/api/v1/detail/',
+        'bilitv' => '/bilitv/api/v1/detail/',
+        'netshort' => '/netshort/api/v1/detail/',
+        'melolo' => '/melolo/api/v1/detail/',
+        'velolo' => '/velolo/api/v1/detail/',
+        'stardusttv' => '/stardusttv/api/v1/detail/',
+        'serialplus' => '/serialplus/api/v1/detail/',
+        'dotdrama' => '/dotdrama/api/v1/detail/',
+        'rapidtv' => '/rapidtv/api/v1/detail/',
+        'shortswave' => '/shortswave/api/v1/detail/',
+        'dramanova' => '/dramanova/api/v1/detail/',
+        'cubetv' => '/cubetv/api/v1/detail/',
+        'flareflow' => '/flareflow/api/v1/detail/',
+        'moboreels' => '/moboreels/api/v1/detail/',
+        'happyshort' => '/happyshort/api/v1/detail/',
+        'reelife' => '/reelife/api/v1/detail/',
+        'pinedrama' => '/pinedrama/api/v1/detail/',
+        'flextv' => '/flextv/api/v1/detail/',
+        'reelala' => '/reelala/api/v1/detail/'
+    );
+    
+    // Mapping endpoint episodes per provider
+    private $episodesMap = array(
+        'flickreels' => '/flickreels/api/flickreels/allepisode?id=',
+        'idrama' => '/idrama/episodes/',
+        'dramabox' => '/dramabox/api/v1/episodes/',
+        'shortmax' => '/shortmax/api/v1/episodes/',
+        'reelshort' => '/reelshort/api/v1/episodes/',
+        'starshort' => '/starshort/api/v1/episodes/',
+        'dramabite' => '/dramabite/api/v1/episodes/',
+        'goodshort' => '/goodshort/api/v1/episodes/',
+        'reelbuzz' => '/reelbuzz/api/v1/episodes/',
+        'freereels' => '/freereels/api/v1/episodes/',
+        'vigloo' => '/vigloo/api/v1/episodes/',
+        'dramawave' => '/dramawave/api/v1/episodes/',
+        'microdrama' => '/microdrama/api/v1/episodes/',
+        'bilitv' => '/bilitv/api/v1/episodes/',
+        'netshort' => '/netshort/api/v1/episodes/',
+        'melolo' => '/melolo/api/v1/episodes/',
+        'velolo' => '/velolo/api/v1/episodes/',
+        'stardusttv' => '/stardusttv/api/v1/episodes/',
+        'serialplus' => '/serialplus/api/v1/episodes/',
+        'dotdrama' => '/dotdrama/api/v1/episodes/',
+        'rapidtv' => '/rapidtv/api/v1/episodes/',
+        'shortswave' => '/shortswave/api/v1/episodes/',
+        'dramanova' => '/dramanova/api/v1/episodes/',
+        'cubetv' => '/cubetv/api/v1/episodes/',
+        'flareflow' => '/flareflow/api/v1/episodes/',
+        'moboreels' => '/moboreels/api/v1/episodes/',
+        'happyshort' => '/happyshort/api/v1/episodes/',
+        'reelife' => '/reelife/api/v1/episodes/',
+        'pinedrama' => '/pinedrama/api/v1/episodes/',
+        'flextv' => '/flextv/api/v1/episodes/',
+        'reelala' => '/reelala/api/v1/episodes/'
+    );
+    
+    // Mapping endpoint stream per provider
+    private $streamMap = array(
+        'flickreels' => '/flickreels/api/flickreels/episode?id=',
+        'idrama' => '/idrama/play/',
+        'dramabox' => '/dramabox/api/v1/play/',
+        'shortmax' => '/shortmax/api/v1/play/',
+        'reelshort' => '/reelshort/api/v1/play/',
+        'starshort' => '/starshort/api/v1/play/',
+        'dramabite' => '/dramabite/api/v1/play/',
+        'goodshort' => '/goodshort/api/v1/play/',
+        'reelbuzz' => '/reelbuzz/api/v1/play/',
+        'freereels' => '/freereels/api/v1/play/',
+        'vigloo' => '/vigloo/api/v1/play/',
+        'dramawave' => '/dramawave/api/v1/play/',
+        'microdrama' => '/microdrama/api/v1/play/',
+        'bilitv' => '/bilitv/api/v1/play/',
+        'netshort' => '/netshort/api/v1/play/',
+        'melolo' => '/melolo/api/v1/play/',
+        'velolo' => '/velolo/api/v1/play/',
+        'stardusttv' => '/stardusttv/api/v1/play/',
+        'serialplus' => '/serialplus/api/v1/play/',
+        'dotdrama' => '/dotdrama/api/v1/play/',
+        'rapidtv' => '/rapidtv/api/v1/play/',
+        'shortswave' => '/shortswave/api/v1/play/',
+        'dramanova' => '/dramanova/api/v1/play/',
+        'cubetv' => '/cubetv/api/v1/play/',
+        'flareflow' => '/flareflow/api/v1/play/',
+        'moboreels' => '/moboreels/api/v1/play/',
+        'happyshort' => '/happyshort/api/v1/play/',
+        'reelife' => '/reelife/api/v1/play/',
+        'pinedrama' => '/pinedrama/api/v1/play/',
+        'flextv' => '/flextv/api/v1/play/',
+        'reelala' => '/reelala/api/v1/play/'
     );
     
     public function __construct() {
@@ -219,12 +334,11 @@ class ApiService {
         // Cek apakah provider punya endpoint khusus dalam mapping
         $providerLower = strtolower($provider);
         
-        if (isset($this->trendingEndpoints[$providerLower])) {
+        if (isset($this->feedMap[$providerLower])) {
             // Gunakan endpoint khusus dari mapping
-            $endpoint = $this->trendingEndpoints[$providerLower];
+            $endpoint = $this->feedMap[$providerLower];
         } else {
             // Fallback ke pattern default untuk provider yang belum di-mapping
-            // Coba endpoint umum yang sering digunakan
             $endpoint = '/' . $providerLower . '/api/v1/feed';
         }
         
@@ -250,8 +364,8 @@ class ApiService {
         $encodedId = urlencode($dramaId);
         
         // Cek mapping endpoint detail per provider
-        if (isset($this->detailEndpoints[$providerLower])) {
-            $endpointPattern = $this->detailEndpoints[$providerLower];
+        if (isset($this->detailMap[$providerLower])) {
+            $endpointPattern = $this->detailMap[$providerLower];
             
             // Khusus flickreels yang pakai query parameter ?id=
             if ($providerLower === 'flickreels') {
@@ -274,29 +388,89 @@ class ApiService {
     }
     
     /**
-     * Get episodes list for a drama
-     * Endpoint: /{provider}/api/v1/drama/{drama_id}/episodes
+     * Get episodes list for a drama dengan endpoint unik per provider
+     * Endpoint: sesuai mapping episodesMap atau fallback ke pattern default
      * @param string $provider Provider slug
      * @param string $dramaId Drama ID from API
      * @param int $cacheTime Cache duration in seconds
      * @return array|null List of episodes
      */
     public function getEpisodes($provider, $dramaId, $cacheTime = 21600) {
-        $endpoint = 'drama/' . urlencode($dramaId) . '/episodes';
-        return $this->request($provider, $endpoint, $cacheTime);
+        $providerLower = strtolower($provider);
+        $encodedId = urlencode($dramaId);
+        
+        // Cek mapping endpoint episodes per provider
+        if (isset($this->episodesMap[$providerLower])) {
+            $endpointPattern = $this->episodesMap[$providerLower];
+            
+            // Khusus flickreels yang pakai query parameter ?id=
+            if ($providerLower === 'flickreels') {
+                $endpoint = $endpointPattern . $encodedId;
+            } else {
+                $endpoint = $endpointPattern . $encodedId;
+            }
+        } else {
+            // Fallback ke pattern default
+            $endpoint = '/' . $providerLower . '/api/v1/episodes/' . $encodedId;
+        }
+        
+        $rawResponse = $this->makeRequest($this->baseUrl . $endpoint, $cacheTime);
+        
+        if ($rawResponse === null) {
+            return null;
+        }
+        
+        return $this->normalizeResponse($rawResponse);
     }
     
     /**
-     * Get streaming URL for an episode (HLS .m3u8)
-     * Endpoint: /{provider}/api/v1/stream/{episode_id}
+     * Get streaming URL for an episode (HLS .m3u8) dengan endpoint unik per provider
+     * Endpoint: sesuai mapping streamMap atau fallback ke pattern default
      * @param string $provider Provider slug
-     * @param string $episodeId Episode ID from API
+     * @param string $dramaId Drama ID from API
+     * @param string $episodeNum Episode number
      * @param int $cacheTime Cache duration in seconds (short cache for streams)
      * @return array|null Stream data with m3u8 URL
      */
-    public function getStreamUrl($provider, $episodeId, $cacheTime = 900) {
-        $endpoint = 'stream/' . urlencode($episodeId);
-        return $this->request($provider, $endpoint, $cacheTime);
+    public function getStreamUrl($provider, $dramaId, $episodeNum, $cacheTime = 900) {
+        $providerLower = strtolower($provider);
+        $encodedId = urlencode($dramaId);
+        $encodedEp = urlencode($episodeNum);
+        
+        // Cek mapping endpoint stream per provider
+        if (isset($this->streamMap[$providerLower])) {
+            $endpointPattern = $this->streamMap[$providerLower];
+            
+            // Khusus flickreels yang pakai query parameter ?id=&ep=
+            if ($providerLower === 'flickreels') {
+                $endpoint = $endpointPattern . $encodedId . '&ep=' . $encodedEp;
+            } elseif ($providerLower === 'idrama') {
+                // iDrama format: /idrama/play/{id}/{ep}?lang=id
+                $endpoint = $endpointPattern . $encodedId . '/' . $encodedEp . '?lang=id';
+            } else {
+                // Standard format: /{provider}/api/v1/play/{id}/{ep}
+                $endpoint = $endpointPattern . $encodedId . '/' . $encodedEp;
+            }
+        } else {
+            // Fallback ke pattern default
+            $endpoint = '/' . $providerLower . '/api/v1/play/' . $encodedId . '/' . $encodedEp;
+        }
+        
+        $rawResponse = $this->makeRequest($this->baseUrl . $endpoint, $cacheTime);
+        
+        if ($rawResponse === null) {
+            return null;
+        }
+        
+        return $this->normalizeResponse($rawResponse);
+    }
+    
+    /**
+     * Get all providers list
+     * @return array Array of all provider names
+     */
+    public function getAllProviders() {
+        return array_keys($this->feedMap);
     }
     
     /**
