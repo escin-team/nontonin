@@ -55,6 +55,22 @@ $router->get('/home', function() {
     $controller->index();
 });
 
+// Drama Routes
+$router->get('/drama/{slug}', function($slug) {
+    $controller = new DramaController();
+    $controller->detail($slug);
+});
+
+$router->get('/watch/{slug}/{episodeId}', function($slug, $episodeId) {
+    $controller = new DramaController();
+    $controller->watch($slug, $episodeId);
+});
+
+$router->post('/drama/update-progress', function() {
+    $controller = new DramaController();
+    $controller->updateProgress();
+});
+
 // Default route
 $router->get('/', function() {
     if (isset($_SESSION['user_id'])) {
